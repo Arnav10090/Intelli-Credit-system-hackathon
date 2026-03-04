@@ -1,0 +1,54 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+backend/venv/
+venv/
+.venv/
+
+# ─── Node / Frontend ──────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# ─── Environment & Secrets ────────────────────────────────────────────────────
+.env
+!.env.example
+
+# ─── Database ─────────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Generated Files ──────────────────────────────────────────────────────────
+backend/outputs/
+backend/uploads/
+data/
+
+# ─── OS Files ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── IDE / Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.qodo/
+
+# ─── ML Models (large binaries) ──────────────────────────────────────────────
+ml/models/*.pkl
+ml/models/*.joblib
+
+# ─── Misc ─────────────────────────────────────────────────────────────────────
+*.log
+.pytest_cache/
+.coverage
+htmlcov/

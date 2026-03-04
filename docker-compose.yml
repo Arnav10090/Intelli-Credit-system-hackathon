@@ -1,0 +1,57 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Intelli-Credit Docker Compose
+# Single command to start the full stack: docker-compose up --build
+#
+# Services:
+#   backend  — FastAPI + uvicorn (port 8000)
+#   frontend — React/Vite dev server (port 5173)
+#
+# SQLite database is file-based — no separate DB service needed.
+# All generated files (uploads, CAM outputs) mount to ./data volume.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: intelli_credit_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - INTELLI_DEBUG=false
+      - INTELLI_DATABASE_URL=sqlite+aiosqlite:////app/data/intelli_credit.db
+      - INTELLI_ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - INTELLI_USE_CACHED_RESEARCH=true
+      - INTELLI_ALLOWED_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+    volumes:
+      - ./data:/app/data          # Persistent SQLite DB + uploaded files + outputs
+      - ./backend:/app            # Live code reload in dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: intelli_credit_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend/src:/app/src   # Live code reload
+    restart: unless-stopped
+
+volumes:
+  data:
