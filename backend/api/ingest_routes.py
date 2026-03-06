@@ -471,9 +471,9 @@ async def _get_financial_data(case_id: str, session: AsyncSession) -> dict | Non
             Document.case_id == case_id,
             Document.doc_type == "balance_sheet",
             Document.status == "extracted",
-        )
+        ).order_by(Document.processed_at.desc())
     )
-    doc = result.scalar_one_or_none()
+    doc = result.scalars().first()
     if doc and doc.extracted_json:
         return doc.extracted_json
     return None
@@ -485,9 +485,9 @@ async def _get_financial_doc(case_id: str, session: AsyncSession):
         select(Document).where(
             Document.case_id == case_id,
             Document.doc_type == "balance_sheet",
-        )
+        ).order_by(Document.processed_at.desc())
     )
-    return result.scalar_one_or_none()
+    return result.scalars().first()
 
 
 async def _get_research_cache(case_id: str, session: AsyncSession) -> dict | None:
@@ -496,9 +496,9 @@ async def _get_research_cache(case_id: str, session: AsyncSession) -> dict | Non
         select(Document).where(
             Document.case_id == case_id,
             Document.filename == "research_cache_demo.json",
-        )
+        ).order_by(Document.processed_at.desc())
     )
-    doc = result.scalar_one_or_none()
+    doc = result.scalars().first()
     if doc and doc.file_path:
         try:
             with open(doc.file_path) as f:

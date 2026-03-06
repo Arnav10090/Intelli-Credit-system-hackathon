@@ -361,9 +361,9 @@ async def _load_doc_json(
             Document.case_id == case_id,
             Document.doc_type == doc_type,
             Document.status == "extracted",
-        )
+        ).order_by(Document.processed_at.desc())
     )
-    doc = result.scalar_one_or_none()
+    doc = result.scalars().first()
     return doc.extracted_json if doc else None
 
 
@@ -373,9 +373,9 @@ async def _load_research_cache(session: AsyncSession, case_id: str) -> dict:
         select(Document).where(
             Document.case_id == case_id,
             Document.filename == "research_cache_demo.json",
-        )
+        ).order_by(Document.processed_at.desc())
     )
-    doc = result.scalar_one_or_none()
+    doc = result.scalars().first()
     if doc and doc.file_path:
         try:
             with open(doc.file_path) as f:
