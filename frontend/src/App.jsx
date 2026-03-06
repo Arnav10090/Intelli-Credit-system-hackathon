@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router-dom'
+import Dashboard from './pages/Dashboard.jsx'
+import CaseDetail from './pages/CaseDetail.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function Sidebar() {
+  const nav = useNavigate()
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <h1>⚡ Intelli-Credit</h1>
+        <p>AI Credit Appraisal</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <nav className="sidebar-nav">
+        <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
+          <span className="sidebar-icon">▦</span> Dashboard
+        </NavLink>
+        <NavLink to="/demo" className={({ isActive }) => isActive ? 'active' : ''}>
+          <span className="sidebar-icon">◎</span> Demo Case
+        </NavLink>
+      </nav>
+      <div style={{ padding: '16px 18px', borderTop: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 10, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: 1 }}>
+          API Status
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--approve)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>
+          ● Backend Connected
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 6 }}>
+          localhost:8000
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </aside>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="app-layout">
+        <Sidebar />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/demo" element={<CaseDetail demo />} />
+            <Route path="/cases/:id" element={<CaseDetail />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
+  )
+}

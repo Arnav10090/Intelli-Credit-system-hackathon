@@ -1,7 +1,7 @@
 {
-  "company_name": "Acme Textiles Ltd4",
+  "company_name": "Acme Textiles Ltd",
   "cin": "U17100MH2010PLC201234",
-  "run_timestamp": "2026-03-05T11:46:34.597925+00:00",
+  "run_timestamp": "2026-03-06T04:55:16.663772+00:00",
   "aggregate": {
     "total_news_risk_delta": -60,
     "total_ecourts_risk_delta": -35,
