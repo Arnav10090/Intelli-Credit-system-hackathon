@@ -14,8 +14,14 @@ function Sidebar() {
         <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
           <span className="sidebar-icon">▦</span> Dashboard
         </NavLink>
-        <NavLink to="/demo" className={({ isActive }) => isActive ? 'active' : ''}>
-          <span className="sidebar-icon">◎</span> Demo Case
+        <div style={{ padding: '6px 18px 2px', fontSize: 9, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>
+          Demo Scenarios
+        </div>
+        <NavLink to="/demo/surya" className={({ isActive }) => isActive ? 'active' : ''}>
+          <span className="sidebar-icon" style={{ color: 'var(--approve)' }}>✓</span> Surya Pharma
+        </NavLink>
+        <NavLink to="/demo/acme" className={({ isActive }) => isActive ? 'active' : ''}>
+          <span className="sidebar-icon" style={{ color: 'var(--reject)' }}>✕</span> Acme Textiles
         </NavLink>
       </nav>
       <div style={{ padding: '16px 18px', borderTop: '1px solid var(--border)' }}>
@@ -41,7 +47,9 @@ export default function App() {
         <div className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/demo" element={<CaseDetail demo />} />
+            <Route path="/demo/surya" element={<CaseDetail demoScenario="surya" />} />
+            <Route path="/demo/acme" element={<CaseDetail demoScenario="acme" />} />
+            <Route path="/demo" element={<CaseDetail demoScenario="acme" />} />
             <Route path="/cases/:id" element={<CaseDetail />} />
           </Routes>
         </div>

@@ -1,0 +1,48 @@
+{
+  "company_name": "Surya Pharmaceuticals Ltd",
+  "cin": "U24230TG2008PLC058421",
+  "run_timestamp": "2026-03-07T09:34:18.394014+00:00",
+  "aggregate": {
+    "total_news_risk_delta": -30,
+    "total_ecourts_risk_delta": 0,
+    "total_mca_risk_notes": 0,
+    "total_risk_delta": -30,
+    "overall_research_risk_label": "HIGH",
+    "article_count": 2,
+    "tier1_count": 1,
+    "tier2_count": 0,
+    "tier3_count": 0
+  },
+  "sources_tried": [
+    "google_news_rss",
+    "mca21",
+    "bse_india"
+  ],
+  "sources_failed": [],
+  "articles": [
+    {
+      "title": "Surya Pharmaceuticals Limited: Firm owners fail to pay loan, banks paste possession notice outside their house - The Indian Express",
+      "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxOajNIR1pibWwybVJJNUhrNndjRzdsWGhMRE5yaExDa0xqZGQ3TEhQR2NaNE9iZUtMc2FwWng1RlVoMzUtRGZTWUR1c01zcXh5ZzZlMjlCQ2xSbk90b2hINV9lX19LeW1KVHRoMWZXMy1wdDlhc2VaWlBNbEU4b3Z1bkVIQlhPdm5oWWpJTUhIR1dRbUxqQlNCVGh6V3BJdTk5YU42SkJEQnYzb0hmeHhiZkszYVdzTTJmVnE1WU5kQWN5VE05WUxBcGY5ZUJtTHBnbThmc0JaNFo3d0U3NlZTV1hBdE5uYnpjRm1fSU9WVHhpNmtfTzA2Z0NHckZyUdIBhAJBVV95cUxPNy1acW5NSWFTSWtIU2k2VGhoZnhlMl9zaVBzZ2JoZ1VzNmtOdWE4dUR6NU5SN3VzdGhQZ0JMeTZJeTQzVl8yc2tUUl93V2FnUTk2UXlSM0JsR3JSZ21uN0k1N0d5dF9hRlVFNWR1amk0UWFSVUpCeGZiVTd4M0lGZGNYVGpQSC11WWlnYzhHcXdFUlZaejNDN2dzdjFtSExmT2dHNWk3THVYUTNaZFN1WmN6d1pDd0VrbDItaVBQZGF0N254TlRxWDZ3UWtnZUxmRERkdXBVcnFhNlV6SDJKS0FkXzlzWjlZcEN3YzlIQmtkV1p1bmtfUTRieFRiT2FnVmJGZw?oc=5",
+      "source_name": "Google News",
+      "published_date": "Sat, 10 Ju",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi_gFBVV95cUxOajNIR1pibWwybVJJNUhrNndjRzdsWGhMRE5yaExDa0xqZGQ3TEhQR2NaNE9iZUtMc2FwWng1RlVoMzUtRGZTWUR1c01zcXh5ZzZlMjlCQ2xSbk90b2hINV9lX19LeW1KVHRoMWZXMy1wdDlhc2VaWlBNbEU4b3Z1bkVIQlhPdm5oWWpJTUhIR1dRbUxqQlNCVGh6V3BJdTk5YU42SkJEQnYzb0hmeHhiZkszYVdzTTJmVnE1WU5kQWN5VE05WUxBcGY5ZUJtTHBnbThmc0JaNFo3d0U3NlZTV1hBdE5uYnpjRm1fSU9WVHhpNmtfTzA2Z0NHckZyUdIBhAJBVV95cUxPNy1acW5NSWFTSWtIU2k2VGhoZnhlMl9zaVBzZ2JoZ1VzNmtOdWE4dUR6NU5SN3VzdGhQZ0JMeTZJeTQzVl8yc2tUUl93V2",
+      "result_type": "news_article",
+      "risk_tier": 1,
+      "risk_score_delta": -30,
+      "matched_keywords": [
+        "possession notice"
+      ]
+    },
+    {
+      "title": "ED attaches properties of Surya Pharmaceuticals in Rs 828 crore bank fraud case - The Times of India",
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxQR0NDNWVoU0lQOEYzbEJzSFZidVRPSjV5LVdiWkJBY3kyWFcyYl9pNDN3Z2I5ZjBkTFpLY1o4V2RJWjhESV83Tk5ha2RrbldqaExLZkJRLVZ4VWpINkVZeVRfTXFpZXFSdmd2S3h5dGppUmZQaXZLaWN5c2FTXzJFRUdxY2gzbW82SV80LWpPMEVuTjdxdzJYTng2dVdpaEVyby10TV9HT2dPcTR5SzdDN19ZcjIwT3VNX2VBOXN2M19oT2VvcEtXSGFoZHd1c3ZXMTRVRjBsakVvQXpyVDZrY0RxSF9hc2FzdFHSAe8BQVVfeXFMUFp2TzU5cVdaTDdDTzh1eTY4VEZoVmVTOWd4Z1NqdFJvZXVVbGlNOC1sajZGWUlZejcwTkczMHVsbU15QUl0REZPZkdLX3J1Q3JubUx2V0VraVpwdVhILTN4aDg5bXR1YkVpYlB6anRNeU5JaHZEbTNVMXI0MGMxcXJZaVZVS2tPZGJuRkZHRGVJR2d3OTdjNzJkc19WYmwxZ2RiYWZxZkZiSlVuNHl0UGlTZWZyTjhuQlVDQUJRWURlZzZQLUtXdUZMeTJtbEhjRXdzaDZUQmNQLUV0emFmc0FaY0pPYjA4b293UXBSbFU?oc=5",
+      "source_name": "Google News",
+      "published_date": "Tue, 18 Oc",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi6gFBVV95cUxQR0NDNWVoU0lQOEYzbEJzSFZidVRPSjV5LVdiWkJBY3kyWFcyYl9pNDN3Z2I5ZjBkTFpLY1o4V2RJWjhESV83Tk5ha2RrbldqaExLZkJRLVZ4VWpINkVZeVRfTXFpZXFSdmd2S3h5dGppUmZQaXZLaWN5c2FTXzJFRUdxY2gzbW82SV80LWpPMEVuTjdxdzJYTng2dVdpaEVyby10TV9HT2dPcTR5SzdDN19ZcjIwT3VNX2VBOXN2M19oT2VvcEtXSGFoZHd1c3ZXMTRVRjBsakVvQXpyVDZrY0RxSF9hc2FzdFHSAe8BQVVfeXFMUFp2TzU5cVdaTDdDTzh1eTY4VEZoVmVTOWd4Z1NqdFJvZXVVbGlNOC1sajZGWUlZejcwTkczMHVsbU15QUl0REZPZkdLX3J1Q3JubUx2V0VraVpwdVhILTN4aD",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    }
+  ]
+}

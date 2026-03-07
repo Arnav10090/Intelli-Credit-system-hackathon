@@ -18,7 +18,8 @@ from pydantic import Field
 # ── Path constants (relative to this file) ────────────────────────────────────
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
-DEMO_DIR = DATA_DIR / "demo_company"
+DEMO_DIR  = DATA_DIR / "demo_company"
+DEMO_DIR2 = DATA_DIR / "demo_company2"
 LEXICON_PATH = DATA_DIR / "litigation_lexicon.json"
 BENCHMARKS_PATH = DATA_DIR / "sector_benchmarks.json"
 UPLOAD_DIR = BASE_DIR / "uploads"

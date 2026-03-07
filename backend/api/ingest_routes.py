@@ -18,10 +18,10 @@ from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import settings, UPLOAD_DIR, DEMO_DIR
+from config import settings, UPLOAD_DIR, DEMO_DIR, DEMO_DIR2
 from database import (
     get_session, create_case, add_document, add_recon_flag,
     Case, Document, ReconFlag
@@ -156,20 +156,42 @@ async def upload_document(
 
 
 @router.post("/cases/{case_id}/load-demo", response_model=LoadDemoResponse,
-             summary="Load Acme Textiles demo data — instant demo fallback")
+             summary="Load demo data — instant demo fallback")
 async def load_demo_data(
     case_id: str,
+    scenario: str = "acme",
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Loads pre-built Acme Textiles demo data. Runs GST reconciliation,
-    working capital analysis, and related party detection automatically.
-    Use this for the demo — avoids live document parsing.
+    Loads pre-built demo data for one of two contrasting scenarios:
+
+    - **acme** (default): Acme Textiles Ltd — Grade C / REJECT.
+      Exhibits DSCR stress, ITC mismatch, NCLT matter, high promoter pledge.
+
+    - **surya**: Surya Pharmaceuticals Ltd — Grade A+ / APPROVE.
+      Strong DSCR 2.6x, D/E 0.4x, USFDA-approved, zero litigation.
+
+    Use `?scenario=surya` to load the clean APPROVE case.
+    Run /analyze after loading to trigger working capital & research analysis.
     """
     result = await session.execute(select(Case).where(Case.id == case_id))
     case = result.scalar_one_or_none()
     if not case:
         raise HTTPException(404, f"Case {case_id} not found.")
+
+    # Select demo directory based on scenario
+    demo_dir = DEMO_DIR2 if scenario.lower() == "surya" else DEMO_DIR
+
+    # ── Clean up any stale data from a previous demo run ──────────────────────
+    # This prevents old Acme data from contaminating a Surya reload (or vice versa)
+    from database import ReconFlag, ScoringResult, ResearchResult
+    await session.execute(delete(Document).where(Document.case_id == case_id))
+    await session.execute(delete(ReconFlag).where(ReconFlag.case_id == case_id))
+    await session.execute(delete(ScoringResult).where(ScoringResult.case_id == case_id))
+    await session.execute(delete(ResearchResult).where(ResearchResult.case_id == case_id))
+    # Reset case status so the pipeline runs cleanly from scratch
+    case.status = "draft"
+    session.add(case)
 
     flags_raised = 0
     docs_loaded  = 0
@@ -177,7 +199,7 @@ async def load_demo_data(
     fin_data = {}
 
     # ── Financial data ─────────────────────────────────────────────────────────
-    fin_path = DEMO_DIR / "financial_data.json"
+    fin_path = demo_dir / "financial_data.json"
     if fin_path.exists():
         with open(fin_path) as f:
             fin_data = json.load(f)
@@ -197,7 +219,7 @@ async def load_demo_data(
         fin_data_loaded = True
 
     # ── GST data + reconciliation ──────────────────────────────────────────────
-    gst_path = DEMO_DIR / "gst_data.json"
+    gst_path = demo_dir / "gst_data.json"
     if gst_path.exists():
         with open(gst_path) as f:
             gst_data = json.load(f)
@@ -226,7 +248,7 @@ async def load_demo_data(
             flags_raised += 1
 
     # ── Research cache ─────────────────────────────────────────────────────────
-    rc_path = DEMO_DIR / "research_cache.json"
+    rc_path = demo_dir / "research_cache.json"
     if rc_path.exists():
         rc_doc = await add_document(
             session, case_id=case_id,
@@ -471,9 +493,9 @@ async def _get_financial_data(case_id: str, session: AsyncSession) -> dict | Non
             Document.case_id == case_id,
             Document.doc_type == "balance_sheet",
             Document.status == "extracted",
-        ).order_by(Document.processed_at.desc())
+        )
     )
-    doc = result.scalars().first()
+    doc = result.scalar_one_or_none()
     if doc and doc.extracted_json:
         return doc.extracted_json
     return None
@@ -485,9 +507,9 @@ async def _get_financial_doc(case_id: str, session: AsyncSession):
         select(Document).where(
             Document.case_id == case_id,
             Document.doc_type == "balance_sheet",
-        ).order_by(Document.processed_at.desc())
+        )
     )
-    return result.scalars().first()
+    return result.scalar_one_or_none()
 
 
 async def _get_research_cache(case_id: str, session: AsyncSession) -> dict | None:
@@ -496,9 +518,9 @@ async def _get_research_cache(case_id: str, session: AsyncSession) -> dict | Non
         select(Document).where(
             Document.case_id == case_id,
             Document.filename == "research_cache_demo.json",
-        ).order_by(Document.processed_at.desc())
+        )
     )
-    doc = result.scalars().first()
+    doc = result.scalar_one_or_none()
     if doc and doc.file_path:
         try:
             with open(doc.file_path) as f:

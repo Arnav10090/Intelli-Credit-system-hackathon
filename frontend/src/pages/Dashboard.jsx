@@ -34,7 +34,7 @@ function CaseRow({ c, onClick }) {
 export default function Dashboard() {
     const [cases, setCases] = useState([])
     const [loading, setLoading] = useState(true)
-    const [creating, setCreating] = useState(false)
+    const [creating, setCreating] = useState(null)
     const [error, setError] = useState('')
     const nav = useNavigate()
 
@@ -52,20 +52,26 @@ export default function Dashboard() {
         }
     }
 
-    async function createAndOpenDemo() {
+    async function createAndOpenDemo(scenario) {
+        const isAcme = scenario === 'acme'
         try {
-            setCreating(true)
-            const c = await api.createCase({
+            setCreating(scenario)
+            const c = await api.createCase(isAcme ? {
                 company_name: 'Acme Textiles Ltd',
                 company_cin: 'U17100MH2010PLC201234',
                 company_pan: 'AAACA1234B',
                 sector: 'textiles',
+            } : {
+                company_name: 'Surya Pharmaceuticals Ltd',
+                company_cin: 'U24230TG2008PLC058421',
+                company_pan: 'AADCS9876C',
+                sector: 'pharmaceuticals',
             })
-            nav(`/cases/${c.id}`)
+            nav(`/cases/${c.id || c.case_id}`)
         } catch (e) {
             setError(e.message)
         } finally {
-            setCreating(false)
+            setCreating(null)
         }
     }
 
@@ -86,9 +92,16 @@ export default function Dashboard() {
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: 10 }}>
-                        <button className="btn btn-success" onClick={createAndOpenDemo} disabled={creating}>
-                            {creating ? <span className="loading-spin" /> : '⚡'}
-                            Load Acme Textiles Demo
+                        <button className="btn btn-success" onClick={() => createAndOpenDemo('surya')} disabled={!!creating}
+                            title="Surya Pharmaceuticals — Grade A+, APPROVE (DSCR 2.6x, D/E 0.4x, zero litigation)">
+                            {creating === 'surya' ? <span className="loading-spin" /> : '✓'}
+                            Surya Pharma (APPROVE)
+                        </button>
+                        <button className="btn" onClick={() => createAndOpenDemo('acme')} disabled={!!creating}
+                            style={{ background: 'var(--reject)', borderColor: 'var(--reject)' }}
+                            title="Acme Textiles — Grade C, REJECT (NCLT petition, DSCR 1.2x, 68% promoter pledge)">
+                            {creating === 'acme' ? <span className="loading-spin" /> : '✕'}
+                            Acme Textiles (REJECT)
                         </button>
                     </div>
                 </div>
@@ -124,7 +137,7 @@ export default function Dashboard() {
                     ) : cases.length === 0 ? (
                         <div className="empty-state">
                             <div style={{ fontSize: 32 }}>📋</div>
-                            <p>No cases yet. Click <strong>Load Acme Textiles Demo</strong> to begin.</p>
+                            <p>No cases yet. Click <strong>Surya Pharma (APPROVE)</strong> or <strong>Acme Textiles (REJECT)</strong> to load a demo case.</p>
                         </div>
                     ) : (
                         <div className="scroll-x">

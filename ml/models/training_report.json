@@ -1,0 +1,55 @@
+{
+  "model_class": "sklearn.ensemble.HistGradientBoostingClassifier",
+  "calibration_method": "Platt sigmoid (CalibratedClassifierCV, cv=5)",
+  "feature_names": [
+    "litigation_risk",
+    "promoter_track_record",
+    "gst_compliance",
+    "management_quality",
+    "dscr",
+    "ebitda_margin_trend",
+    "revenue_cagr_vs_sector",
+    "plant_utilization",
+    "de_ratio",
+    "net_worth_trend",
+    "promoter_equity_pct_norm",
+    "security_cover",
+    "collateral_encumbrance",
+    "sector_outlook",
+    "customer_concentration",
+    "regulatory_environment"
+  ],
+  "n_features": 16,
+  "best_hyperparams": {
+    "min_samples_leaf": 50,
+    "max_leaf_nodes": 15,
+    "max_iter": 200,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "l2_regularization": 0.1,
+    "class_weight": null
+  },
+  "holdout_metrics": {
+    "roc_auc": 0.9627,
+    "average_precision": 0.8939,
+    "brier_score": 0.0342,
+    "f1_at_0_45": 0.8259,
+    "optimal_threshold": 0.469,
+    "optimal_f1": 0.8259,
+    "calibration_ece": 0.082,
+    "confusion_matrix": [
+      [
+        855,
+        15
+      ],
+      [
+        28,
+        102
+      ]
+    ],
+    "n_holdout": 1000,
+    "default_rate_holdout": 0.13
+  },
+  "decision_threshold": 0.45,
+  "note": "HistGradientBoostingClassifier is sklearn's histogram-based gradient boosting \u2014 equivalent in architecture to XGBoost. Calibrated probabilities can be used directly as default_probability."
+}

@@ -7,6 +7,7 @@ import PillarBars from '../components/PillarBars.jsx'
 import FeatureTable from '../components/FeatureTable.jsx'
 import FinancialChart from '../components/FinancialChart.jsx'
 import ResearchTable from '../components/ResearchTable.jsx'
+import MLValidatorPanel from '../components/MLValidationPanel.jsx'
 
 /* ── helpers ─────────────────────────────────────────────────── */
 function fmt(v, unit = 'L') {
@@ -60,9 +61,13 @@ const STATUS_STEP = {
 const TABS = ['Pipeline', 'Scorecard', 'Financials', 'Research', 'CAM']
 
 /* ── main component ──────────────────────────────────────────── */
-export default function CaseDetail({ demo }) {
+export default function CaseDetail({ demo, demoScenario }) {
     const { id } = useParams()
     const navigate = useNavigate()
+
+    // Support both old `demo` boolean prop and new `demoScenario` string prop
+    const isDemoMode = demo || !!demoScenario
+    const forcedScenario = demoScenario || (demo ? 'acme' : null)
 
     const [caseId, setCaseId] = useState(null)
     const [caseData, setCaseData] = useState(null)
@@ -70,36 +75,55 @@ export default function CaseDetail({ demo }) {
     const [research, setResearch] = useState([])
     const [resSummary, setResSummary] = useState(null)
     const [camStatus, setCamStatus] = useState(null)
-    const [wc, setWc] = useState(null)   // yearly_metrics from score
+    const [wc, setWc] = useState(null)
     const [flags, setFlags] = useState([])
     const [tab, setTab] = useState('Pipeline')
     const [loading, setLoading] = useState({})
     const [errors, setErrors] = useState({})
-    const [stepDone, setStepDone] = useState(0)      // highest completed step index
+    const [stepDone, setStepDone] = useState(0)
     const [log, setLog] = useState([])
+    const [yearlyMetrics, setYearlyMetrics] = useState([])
+    // ── Locked scenario: set once at mount, never re-derived from caseData ──────
+    const [activeScenario, setActiveScenario] = useState(forcedScenario || 'acme')
 
     /* ── boot: load or create demo case ─────────────────────── */
     useEffect(() => {
-        if (demo) {
-            // check if demo case already exists via listing
+        // Reset all state when switching scenarios
+        setCaseId(null); setCaseData(null); setScore(null)
+        setResearch([]); setResSummary(null); setCamStatus(null)
+        setFlags([]); setLog([]); setStepDone(0)
+        setActiveScenario(forcedScenario || 'acme')
+
+        if (isDemoMode) {
+            const sc = forcedScenario || 'acme'
+            const companyName = sc === 'surya' ? 'Surya Pharmaceuticals Ltd' : 'Acme Textiles Ltd'
             api.listCases().then(cases => {
-                const existing = cases.find(c => c.company_name === 'Acme Textiles Ltd')
+                const existing = cases.find(c => c.company_name === companyName)
                 if (existing) {
                     setCaseId(existing.id)
                     setCaseData(existing)
                     refreshAll(existing.id, existing.status)
                 } else {
-                    api.createCase({
+                    const payload = sc === 'surya' ? {
+                        company_name: 'Surya Pharmaceuticals Ltd',
+                        company_cin: 'U24230TG2008PLC058421',
+                        company_pan: 'AADCS9876C',
+                        requested_amount_cr: 30,
+                        requested_tenor_yr: 6,
+                        purpose: 'Greenfield API manufacturing unit expansion',
+                    } : {
                         company_name: 'Acme Textiles Ltd',
                         company_cin: 'U17100MH2010PLC201234',
                         company_pan: 'AAACA1234B',
                         requested_amount_cr: 20,
                         requested_tenor_yr: 7,
                         purpose: 'Working Capital + Term Loan for capacity expansion',
-                    }).then(res => {
-                        setCaseId(res.case_id)
-                        setCaseData({ company_name: res.company_name, status: 'draft' })
-                        addLog('Case created: ' + res.case_id)
+                    }
+                    api.createCase(payload).then(res => {
+                        const cid = res.case_id || res.id
+                        setCaseId(cid)
+                        setCaseData({ company_name: payload.company_name, status: 'draft' })
+                        addLog(`Case created (${sc}): ` + cid)
                     }).catch(err => addLog('Error: ' + err.message))
                 }
             })
@@ -107,7 +131,7 @@ export default function CaseDetail({ demo }) {
             setCaseId(id)
             refreshAll(id)
         }
-    }, [demo, id])
+    }, [forcedScenario, id])
 
     function addLog(msg) {
         setLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`])
@@ -124,7 +148,12 @@ export default function CaseDetail({ demo }) {
         try {
             const sc = await api.getScore(cid)
             setScore(sc)
-            // Extract yearly metrics from scoring data if embedded
+            // Extract yearly metrics from working capital analysis
+        } catch { }
+        // Working capital / yearly metrics
+        try {
+            const wc = await api.getWorkingCapital(cid)
+            if (wc.yearly_metrics?.length) setYearlyMetrics(wc.yearly_metrics)
         } catch { }
         // Try loading research
         try {
@@ -157,8 +186,9 @@ export default function CaseDetail({ demo }) {
         if (!caseId) return
         setLoad('demo', true); clearErr('demo')
         try {
-            const r = await api.loadDemo(caseId)
-            addLog(`Demo loaded: ${r.documents_loaded} docs, ${r.flags_raised} flags`)
+            // Use activeScenario — locked at mount, never re-derived from caseData
+            const r = await api.loadDemo(caseId, activeScenario)
+            addLog(`Demo loaded (${activeScenario}): ${r.documents_loaded} docs, ${r.flags_raised} flags`)
             setStepDone(s => Math.max(s, 1))
             setCaseData(p => ({ ...p, status: 'ingested' }))
         } catch (e) { setErr('demo', e.message) }
@@ -175,6 +205,11 @@ export default function CaseDetail({ demo }) {
             setCaseData(p => ({ ...p, status: 'analyzed' }))
             const fl = await api.listFlags(caseId)
             setFlags(fl)
+            // Fetch yearly P&L metrics for the Financials chart
+            try {
+                const wc = await api.getWorkingCapital(caseId)
+                if (wc.yearly_metrics?.length) setYearlyMetrics(wc.yearly_metrics)
+            } catch { }
         } catch (e) { setErr('analyze', e.message) }
         setLoad('analyze', false)
     }
@@ -227,6 +262,9 @@ export default function CaseDetail({ demo }) {
     }
 
     /* ── sidebar metrics ─────────────────────────────────────── */
+    // Use locked activeScenario state — never re-derive from company name
+    const scenario = activeScenario
+
     const decisionColor = !score?.decision ? 'var(--text-muted)'
         : score.decision === 'APPROVE' ? 'var(--approve)'
             : score.decision === 'PARTIAL' ? 'var(--partial)'
@@ -250,6 +288,10 @@ export default function CaseDetail({ demo }) {
                         <Badge
                             label={caseData?.status || 'draft'}
                             color={caseData?.status === 'cam_generated' ? 'var(--approve)' : caseData?.status === 'scored' ? 'var(--blue-bright)' : 'var(--text-muted)'}
+                        />
+                        <Badge
+                            label={scenario === 'surya' ? '✓ APPROVE DEMO' : '✕ REJECT DEMO'}
+                            color={scenario === 'surya' ? 'var(--approve)' : 'var(--reject)'}
                         />
                         {caseId && (
                             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)' }}>
@@ -354,7 +396,9 @@ export default function CaseDetail({ demo }) {
                             {[
                                 {
                                     step: 1, key: 'demo', label: 'Load Demo Data',
-                                    desc: 'Loads Acme Textiles demo data: financials, GST, research cache.',
+                                    desc: scenario === 'surya'
+                                        ? 'Loads Surya Pharmaceuticals demo data: clean financials, GST (0 flags), positive research cache.'
+                                        : 'Loads Acme Textiles demo data: stressed financials, GST flags, NCLT litigation research.',
                                     action: doLoadDemo,
                                     done: stepDone >= 1,
                                     available: !!caseId,
@@ -375,7 +419,9 @@ export default function CaseDetail({ demo }) {
                                 },
                                 {
                                     step: 4, key: 'research', label: 'Load Research Cache',
-                                    desc: 'Loads Acme Textiles news, eCourts, MCA findings into DB.',
+                                    desc: scenario === 'surya'
+                                        ? 'Loads Surya Pharmaceuticals news, eCourts, MCA findings — USFDA approval, ICRA A- reaffirmation, zero litigation.'
+                                        : 'Loads Acme Textiles news, eCourts, MCA findings — NCLT petition, CARE BBB- Negative, pledging concerns.',
                                     action: doResearch,
                                     done: stepDone >= 4,
                                     available: stepDone >= 2,
@@ -561,36 +607,7 @@ export default function CaseDetail({ demo }) {
                             )}
 
                             {/* ML Validation */}
-                            {score.ml_validation && (
-                                <div style={{
-                                    background: 'var(--surface)', border: '1px solid var(--border)',
-                                    borderRadius: 'var(--radius)', padding: '12px 16px', marginBottom: 20,
-                                    display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap',
-                                }}>
-                                    <span style={{ fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
-                                        ML Validator
-                                    </span>
-                                    <Badge
-                                        label={score.ml_validation.predicted_label || '?'}
-                                        color={score.ml_validation.predicted_label === 'low_risk' ? 'var(--approve)' : score.ml_validation.predicted_label === 'medium_risk' ? 'var(--partial)' : 'var(--reject)'}
-                                    />
-                                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
-                                        Default prob: {((score.ml_validation.default_probability || 0) * 100).toFixed(0)}%
-                                    </span>
-                                    <Badge
-                                        label={score.ml_validation.agrees_with_scorecard ? '✓ Agrees' : '⚠ Divergent'}
-                                        color={score.ml_validation.agrees_with_scorecard ? 'var(--approve)' : 'var(--partial)'}
-                                    />
-                                    <span style={{ fontSize: 11, color: 'var(--text-muted)', flex: 1 }}>
-                                        via {score.ml_validation.model_used}
-                                    </span>
-                                    {score.ml_validation.divergence_note && (
-                                        <div style={{ width: '100%', fontSize: 11, color: 'var(--partial)', marginTop: 4 }}>
-                                            {score.ml_validation.divergence_note}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            <MLValidatorPanel ml={score.ml_validation} />
 
                             {/* Feature contribution waterfall */}
                             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
@@ -607,14 +624,12 @@ export default function CaseDetail({ demo }) {
             {/* Tab: Financials */}
             {tab === 'Financials' && (
                 <div>
-                    {!score?.loan_sizing && (
+                    {!score && (
                         <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>
-                            Run scoring engine first to see financial analysis
+                            Run scoring engine first (Pipeline tab → Step 3)
                         </div>
                     )}
-
-                    {/* We load WC metrics via score's feature_values */}
-                    <WCMetricsPanel caseId={caseId} score={score} />
+                    {score && <WCMetricsPanel caseId={caseId} score={score} yearlyMetrics={yearlyMetrics} />}
                 </div>
             )}
 
@@ -764,77 +779,95 @@ export default function CaseDetail({ demo }) {
     )
 }
 
-/* ── WC Metrics sub-panel ─────────────────────────────────────── */
-function WCMetricsPanel({ caseId, score }) {
-    const [wc, setWc] = useState(null)
-    const [loading, setLoading] = useState(false)
 
-    // Try to load WC data from API when caseId is set
-    useEffect(() => {
-        if (!caseId) return
-        setLoading(true)
-        // We fetch the balance_sheet document embedded in score feature_values
-        // The yearly_metrics are available via the /analyze output stored in the financial doc
-        // We'll fetch from /cases/:id/flags which has WC info, or infer from score
-        // Best approach: call a dedicated working capital endpoint. Since we don't have one,
-        // we reconstruct from score feature_values if available.
-        if (score) {
-            // Try fetching from a hypothetical endpoint, otherwise use score data
-            setLoading(false)
-        }
-    }, [caseId, score])
+/* ── WC Metrics Panel ─────────────────────────────────────────────────────── */
+function WCMetricsPanel({ caseId, score, yearlyMetrics }) {
+    if (!score) return null
 
-    // Extract what we can from the score object
-    if (!score) return (
-        <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>
-            Run scoring engine first to see financial analysis
-        </div>
-    )
+    const hasYearly = yearlyMetrics && yearlyMetrics.length > 0
 
-    // Build placeholder metrics from score raw values if yearly not available
-    const fv = score  // score already has pillar_scores, loan_sizing etc.
-
-    return (
-        <WCMetricsFetcher caseId={caseId} score={score} />
-    )
-}
-
-function WCMetricsFetcher({ caseId, score }) {
-    const [metrics, setMetrics] = useState(null)
-    const [loading, setLoading] = useState(false)
-
-    useEffect(() => {
-        if (!caseId) return
-        setLoading(true)
-        // Fetch working capital data by calling the analyze endpoint output.
-        // We get it from the financial document. Since there's no direct endpoint,
-        // we'll fetch from /cases/:id/flags and reconstruct or use the score loan_sizing hints.
-        // The cleanest approach: call /analyze again for a re-fetch — but that re-runs analysis.
-        // Instead, we'll display what's in the score and supplement with a dedicated fetch.
-        setLoading(false)
-    }, [caseId])
-
-    const ratioRows = [
-        { label: 'DSCR', key: null, value: score?.loan_sizing ? null : null },
-    ]
-
-    // Display score-derived stats + chart placeholder
     return (
         <div>
-            {/* Quick financial stats from loan sizing */}
+            {/* P&L Chart */}
+            {hasYearly && (
+                <div style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 20,
+                }}>
+                    <div style={{
+                        fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+                        textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14,
+                    }}>
+                        P&amp;L Trend — Revenue / EBITDA / PAT (₹ Lakhs)
+                    </div>
+                    <FinancialChart metrics={yearlyMetrics} />
+                </div>
+            )}
+
+            {/* Ratio trend table */}
+            {hasYearly && (
+                <div style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 20,
+                    overflowX: 'auto',
+                }}>
+                    <div style={{
+                        fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+                        textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12,
+                    }}>Annual Ratios</div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                        <thead>
+                            <tr>
+                                {['Year', 'DSCR', 'D/E', 'Curr. Ratio', 'Debtor Days', 'Cred. Days', 'CCC', 'EBITDA %'].map((h, i) => (
+                                    <th key={h} style={{
+                                        textAlign: i === 0 ? 'left' : 'right', padding: '6px 10px',
+                                        color: 'var(--text-dim)', fontWeight: 500, fontSize: 10,
+                                        borderBottom: '1px solid var(--border)',
+                                    }}>{h}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {yearlyMetrics.map((m, i) => (
+                                <tr key={i} style={{ borderBottom: '1px solid var(--border-soft)' }}>
+                                    <td style={{ padding: '7px 10px', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{m.year}</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: m.dscr >= 1.5 ? 'var(--approve)' : 'var(--reject)' }}>{m.dscr?.toFixed(2)}x</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: m.de_ratio <= 1.5 ? 'var(--approve)' : 'var(--reject)' }}>{m.de_ratio?.toFixed(2)}x</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{m.current_ratio?.toFixed(2)}x</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{m.debtor_days?.toFixed(0)}d</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{m.creditor_days?.toFixed(0)}d</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: m.cash_conversion_cycle > 90 ? 'var(--partial)' : 'var(--text-muted)' }}>{m.cash_conversion_cycle?.toFixed(0)}d</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: m.ebitda_margin_pct >= 18 ? 'var(--approve)' : 'var(--text-muted)' }}>{m.ebitda_margin_pct?.toFixed(1)}%</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {!hasYearly && (
+                <div style={{
+                    background: 'var(--surface)', border: '1px solid var(--border-soft)',
+                    borderRadius: 'var(--radius)', padding: '20px', marginBottom: 20,
+                    textAlign: 'center', color: 'var(--text-muted)', fontSize: 12,
+                }}>
+                    Run <strong>Analyze</strong> (Pipeline Step 2) to see the P&amp;L chart and ratio table.
+                </div>
+            )}
+
+            {/* Loan sizing */}
             {score?.loan_sizing && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
-                    {[
-                        { label: 'Recommended', value: `₹${(score.loan_sizing?.recommendation?.recommended_cr || 0).toFixed(2)} Cr` },
-                        { label: 'DSCR Limit', value: `₹${(score.loan_sizing?.limits?.dscr_based_cr || 0).toFixed(2)} Cr` },
-                        { label: 'Drawing Pwr', value: `₹${(score.loan_sizing?.limits?.drawing_power_cr || 0).toFixed(2)} Cr` },
-                        { label: 'Rate', value: `${(score.loan_sizing?.rate?.recommended_rate_pct || 0).toFixed(2)}% p.a.` },
-                    ].map(s => (
-                        <div key={s.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
-                            <div style={{ fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>{s.label}</div>
-                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: 'var(--blue-bright)' }}>{s.value}</div>
-                        </div>
-                    ))}
+                <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>
+                        Loan Sizing
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+                        <Stat label="Recommended" value={fmt(score.loan_sizing?.recommendation?.recommended_cr, 'Cr')} color="var(--blue-bright)" />
+                        <Stat label="DSCR Limit" value={fmt(score.loan_sizing?.limits?.dscr_based_cr, 'Cr')} color="var(--text)" />
+                        <Stat label="Coll. Limit" value={fmt(score.loan_sizing?.limits?.collateral_based_cr, 'Cr')} color="var(--text)" />
+                        <Stat label="Rate" value={fmt(score.loan_sizing?.rate?.recommended_rate_pct, '%')} color="var(--partial)" />
+                        <Stat label="Binding" value={score.loan_sizing?.recommendation?.binding_constraint || '—'} color="var(--text-muted)" />
+                    </div>
                 </div>
             )}
 

@@ -18,7 +18,7 @@ export const api = {
   // Cases
   listCases:    ()          => req('GET',  '/cases'),
   createCase:   (data)      => req('POST', '/cases', data),
-  loadDemo:     (id)        => req('POST', `/cases/${id}/load-demo`),
+  loadDemo:     (id, scenario = 'acme') => req('POST', `/cases/${id}/load-demo?scenario=${scenario}`),
   analyze:      (id)        => req('POST', `/cases/${id}/analyze`),
   listFlags:    (id)        => req('GET',  `/cases/${id}/flags`),
   listDocs:     (id)        => req('GET',  `/cases/${id}/documents`),
@@ -33,6 +33,8 @@ export const api = {
   getResearch:  (id)        => req('GET',  `/cases/${id}/research`),
   getResearchSummary: (id)  => req('GET',  `/cases/${id}/research/summary`),
   getLitigation:(id)        => req('GET',  `/cases/${id}/research/litigation`),
+
+  getWorkingCapital:(id)        => req('GET',  `/cases/${id}/working-capital`),
 
   // CAM
   generateCam:  (id, analyst) => req('POST', `/cases/${id}/cam?analyst_id=${analyst || 'Analyst'}`),

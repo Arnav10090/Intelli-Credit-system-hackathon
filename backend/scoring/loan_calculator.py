@@ -227,8 +227,9 @@ def compute_loan_sizing(
     final_rate      = round(base_rate + risk_premium + tenor_premium - coll_discount, 2)
 
     # ── 6. Repayment Schedule ─────────────────────────────────────────────────
-    annual_repayment = 0.0
-    emi_monthly      = 0.0
+    annual_repayment     = 0.0
+    emi_monthly          = 0.0
+    recommended_tenor_yr = requested_tenor
 
     if recommended_tl > 0 and final_rate > 0 and recommended_tenor_yr > 0:
         r_monthly      = (final_rate / 100) / 12
@@ -244,7 +245,6 @@ def compute_loan_sizing(
     else:
         notes.append("EMI not computed — zero loan or rate")
 
-    recommended_tenor_yr = requested_tenor
 
     result = LoanSizingResult(
         limit_dscr_cr=          round(limit_dscr_cr, 2),
