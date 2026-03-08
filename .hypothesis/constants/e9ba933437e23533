@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\algorithms\tree\branchings.py
+# hypothesis_version: 6.151.9
+
+['ArborescenceIterator', 'Edmonds', '_{0}', 'arborescence', 'attr', 'branching', 'branching_weight', 'candidate_', 'default', 'greedy_branching', 'inf', 'max', 'maximum', 'maximum_branching', 'min', 'minimal_branching', 'minimum', 'minimum_branching', 'weight']

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\preprocessing\_discretization.py
+# hypothesis_version: 6.151.9
+
+[1e-08, 0.5, 100, 200000, ', ', '_encoder', 'array-like', 'dtype', 'encode', 'kmeans', 'left', 'n_bins', 'n_features_in_', 'numeric', 'onehot', 'onehot-dense', 'ordinal', 'quantile', 'random_state', 'right', 'strategy', 'subsample', 'uniform']

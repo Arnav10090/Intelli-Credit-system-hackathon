@@ -67,7 +67,7 @@ export default function Dashboard() {
                 company_pan: 'AADCS9876C',
                 sector: 'pharmaceuticals',
             })
-            nav(`/cases/${c.id || c.case_id}`)
+            nav(`/demo/${scenario}`)
         } catch (e) {
             setError(e.message)
         } finally {

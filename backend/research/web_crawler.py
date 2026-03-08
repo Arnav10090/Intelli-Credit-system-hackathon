@@ -426,6 +426,13 @@ def _cache_key(identifier: str) -> str:
 
 def _load_from_cache(identifier: str) -> Optional[ResearchAgentResult]:
     """Load a previous crawl result from the file cache."""
+    # Skip runtime cache for demo companies - always use demo_fallback_path instead
+    # This prevents stale runtime cache from contaminating demo scenarios
+    DEMO_COMPANY_KEYWORDS = ["surya pharmaceuticals", "acme textiles"]
+    if any(kw in identifier.lower() for kw in DEMO_COMPANY_KEYWORDS):
+        logger.info("Skipping runtime cache for demo company: %s", identifier)
+        return None
+    
     cache_file = CACHE_DIR / f"{_cache_key(identifier)}.json"
     if not cache_file.exists():
         return None

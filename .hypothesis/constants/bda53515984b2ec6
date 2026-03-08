@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\decomposition\_pca.py
+# hypothesis_version: 6.151.9
+
+[-0.5, 0.0, 1e-15, 0.5, 0.8, 1.0, 2.0, 500, 1000, 'LU', 'QR', 'arpack', 'array_api_support', 'auto', 'boolean', 'copy', 'covariance_eigh', 'csc', 'csr', 'full', 'iterated_power', 'left', 'mle', 'n_components', 'n_oversamples', 'neither', 'none', 'preserves_dtype', 'random_state', 'randomized', 'right', 'svd_solver', 'tol', 'whiten']

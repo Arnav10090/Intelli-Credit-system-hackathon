@@ -36,6 +36,10 @@ export const api = {
 
   getWorkingCapital:(id)        => req('GET',  `/cases/${id}/working-capital`),
 
+  // Insights
+  getInsights:  (id)            => req('GET',  `/cases/${id}/insights`),
+  saveInsights: (id, data)      => req('POST', `/cases/${id}/insights`, data),
+
   // CAM
   generateCam:  (id, analyst) => req('POST', `/cases/${id}/cam?analyst_id=${analyst || 'Analyst'}`),
   getCamStatus: (id)          => req('GET',  `/cases/${id}/cam/status`),

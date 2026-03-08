@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pydantic\_internal\_std_types_schema.py
+# hypothesis_version: 6.151.9
+
+[', ', 'An enumeration.', '__func__', 'allow_inf_nan', 'decimal_places', 'description', 'float', 'format', 'int', 'ipv4', 'ipv4interface', 'ipv4network', 'ipv6', 'ipv6interface', 'ipv6network', 'max_digits', 'max_length', 'min_length', 'path', 'path_type', 'serialization', 'str', 'strict', 'string', 'title', 'type', 'use_enum_values', 'value']

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pytesseract\pytesseract.py
+# hypothesis_version: 6.151.9
+
+[255, '-', '--list-langs', '--version', '-l', '-n', '3.05', '4.1.0', ': ', 'A', 'BMP', 'GIF', 'JPEG', 'JPEG2000', 'PBM', 'PGM', 'PNG', 'PPM', 'Page number', 'RGB', 'Rotate', 'STARTUPINFO', 'Script', 'Script confidence', 'TIFF', 'WEBP', '^[a-z_]+$', '__main__', 'box', 'bytes', 'config', 'data.frame', 'dict', 'env', 'extension', 'hocr', 'input_filename', 'lang', 'nice', 'numpy', 'orientation', 'orientation_conf', 'osd', 'output_filename_base', 'page_num', 'pandas', 'pdf', 'quoting', 'rb', 'rotate', 'script', 'script_conf', 'sep', 'startupinfo', 'stderr', 'stdin', 'stdout', 'string', 'tess_', 'tesseract', 'text', 'timeout', 'tsv', 'txt', 'utf-8', 'win32', 'xml']

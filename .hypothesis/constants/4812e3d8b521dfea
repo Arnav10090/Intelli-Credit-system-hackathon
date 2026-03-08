@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\datetimes\korean.py
+# hypothesis_version: 6.151.9
+
+['+09:00', '0', 'day', 'hour', 'minute', 'month', 'second', 'year', 'zonediff', '년', '오전', '오후', '월', '일']

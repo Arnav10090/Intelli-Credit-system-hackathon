@@ -40,7 +40,8 @@ from fastapi.testclient import TestClient
 def client():
     """Create a TestClient with in-memory SQLite for the full test session."""
     os.environ["INTELLI_DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
-    os.environ["INTELLI_ANTHROPIC_API_KEY"] = "test-key-not-real"
+    # Mock LLM API key so cam generation doesn't fail fast on missing key
+    os.environ["LLM_API_KEY"] = "test-key-not-real"
 
     from main import app
     from database import init_db

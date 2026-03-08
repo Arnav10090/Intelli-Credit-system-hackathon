@@ -81,6 +81,15 @@ const NO_BORDERS= { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: N
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+function sanitizeDashes(text) {
+  if (typeof text !== 'string') return text;
+  return text
+    .replace(/\u2014/g, '-')  // em-dash
+    .replace(/\u2013/g, '-')  // en-dash
+    .replace(/\u2012/g, '-')  // figure dash
+    .replace(/\u2015/g, '-'); // horizontal bar
+}
+
 function cell(text, opts) {
   opts = opts || {};
   const bold    = opts.bold    || false;
@@ -101,7 +110,7 @@ function cell(text, opts) {
     children: [new Paragraph({
       alignment: align,
       children: [new TextRun({
-        text: String(text == null ? '\u2014' : text),
+        text: sanitizeDashes(String(text == null ? '-' : text)),
         bold, color, size, italics: italic, font: 'Arial',
       })]
     })]
@@ -116,14 +125,14 @@ function h1(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
     pageBreakBefore: true,
-    children: [new TextRun({ text, font: 'Arial', size: 32, bold: true, color: NAVY })]
+    children: [new TextRun({ text: sanitizeDashes(text), font: 'Arial', size: 32, bold: true, color: NAVY })]
   });
 }
 
 function h2(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
-    children: [new TextRun({ text, font: 'Arial', size: 24, bold: true, color: BLUE })]
+    children: [new TextRun({ text: sanitizeDashes(text), font: 'Arial', size: 24, bold: true, color: BLUE })]
   });
 }
 
@@ -133,7 +142,7 @@ function para(text, opts) {
     alignment: opts.align || AlignmentType.LEFT,
     spacing: { after: opts.spaceAfter || 120 },
     children: [new TextRun({
-      text: String(text || ''),
+      text: sanitizeDashes(String(text || '')),
       bold: opts.bold || false,
       color: opts.color || BLACK,
       size: opts.size || 20,
@@ -589,6 +598,84 @@ function scorecardSection() {
   ];
 }
 
+function insightsSection() {
+  const ins = data.insights;
+  if (!ins || !ins.has_adjustments) {
+    return [];  // No insights to display
+  }
+  
+  const children = [
+    h1('7.5 Field Observations'),
+    h2('Analyst Notes'),
+    para(ins.notes, { size: 20, spaceAfter: 240 }),
+    spacer(),
+    h2('Score Adjustments from Field Intelligence'),
+  ];
+  
+  // Build adjustments table
+  const rows = [new TableRow({ children: [
+    hdrCell('Pillar', 2400, NAVY),
+    hdrCell('Delta', 1200, NAVY),
+    hdrCell('Reason', 5760, NAVY),
+  ]})];
+  
+  const byPillar = ins.adjustments_by_pillar || {};
+  for (const pillar in byPillar) {
+    const adjustments = byPillar[pillar];
+    const pillarTotal = adjustments.reduce(function(sum, adj) { return sum + adj.delta; }, 0);
+    
+    // First row for pillar with total
+    rows.push(new TableRow({ children: [
+      cell(pillar, { bold: true, w: 2400 }),
+      cell((pillarTotal > 0 ? '+' : '') + pillarTotal + ' pts', { 
+        bold: true, 
+        w: 1200, 
+        color: pillarTotal < 0 ? RED : GREEN,
+        align: AlignmentType.CENTER 
+      }),
+      cell('', { w: 5760 }),
+    ]}));
+    
+    // Detail rows for each adjustment
+    adjustments.forEach(function(adj) {
+      rows.push(new TableRow({ children: [
+        cell('', { w: 2400 }),
+        cell((adj.delta > 0 ? '+' : '') + adj.delta + ' pts', { 
+          w: 1200, 
+          color: adj.delta < 0 ? RED : GREEN,
+          align: AlignmentType.CENTER 
+        }),
+        cell(adj.reason, { w: 5760 }),
+      ]}));
+    });
+  }
+  
+  // Net impact row
+  rows.push(new TableRow({ children: [
+    cell('Net Score Impact', { bold: true, w: 2400, bg: LGREY }),
+    cell((ins.total_delta > 0 ? '+' : '') + ins.total_delta + ' pts', { 
+      bold: true, 
+      w: 1200, 
+      bg: LGREY,
+      color: ins.total_delta < 0 ? RED : GREEN,
+      align: AlignmentType.CENTER 
+    }),
+    cell('Applied to final scorecard', { w: 5760, bg: LGREY, italic: true }),
+  ]}));
+  
+  children.push(new Table({
+    width: { size: 9360, type: WidthType.DXA },
+    columnWidths: [2400, 1200, 5760],
+    rows: rows
+  }));
+  
+  children.push(spacer());
+  children.push(para('Created by: ' + ins.created_by + ' on ' + ins.created_at, 
+    { size: 18, color: '666666', italic: true }));
+  
+  return children;
+}
+
 function riskSection() {
   const lines = (data.narrative.risk_factors || '').split('\n').filter(function(l){ return l.trim(); });
   return [
@@ -665,6 +752,7 @@ const allChildren = [].concat(
   financialSummary(),
   gstSection(),
   researchSection(),
+  insightsSection(),
   scorecardSection(),
   riskSection(),
   recommendationSection()
@@ -744,6 +832,7 @@ def build_cam_docx(
     narrative:      "CAMNarrative",
     analyst_id:     str = "System",
     override_log:   list[dict] | None = None,
+    insights:       dict | None = None,
 ) -> Path:
     out_path = Path(OUTPUT_DIR) / f"{case_id}_CAM.docx"
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -752,7 +841,7 @@ def build_cam_docx(
         case_id, financial_data, scorecard, loan_sizing,
         wc_analysis, rp_analysis, gst_recon,
         research_items, lit_summary, narrative,
-        analyst_id, override_log or [],
+        analyst_id, override_log or [], insights,
     )
 
     try:
@@ -766,10 +855,34 @@ def build_cam_docx(
 
 # ── Payload assembly ──────────────────────────────────────────────────────────
 
+def _transform_wc_rows(yearly_metrics: list) -> list:
+    """
+    Transform working capital yearly metrics to the format expected by the CAM template.
+    Handles zero/missing values by displaying them as-is (the template will handle formatting).
+    """
+    if not yearly_metrics:
+        return []
+    
+    transformed = []
+    for metric in yearly_metrics:
+        transformed.append({
+            "year": metric.get("year", ""),
+            "dscr": metric.get("dscr", 0),
+            "de_ratio": metric.get("de_ratio", 0),
+            "current_ratio": metric.get("current_ratio", 0),
+            "debtor_days": metric.get("debtor_days", 0),
+            "creditor_days": metric.get("creditor_days", 0),
+            "inventory_days": metric.get("inventory_days", 0),
+            "cash_conversion_cycle": metric.get("cash_conversion_cycle", 0),
+            "interest_coverage": metric.get("interest_coverage", 0),
+        })
+    
+    return transformed
+
 def _build_payload(
     case_id, fin, sc, ls, wc, rp, gst,
     research_items, lit, narrative,
-    analyst_id, override_log,
+    analyst_id, override_log, insights,
 ) -> dict:
     company   = fin.get("company", {})
     lr        = fin.get("loan_request", {})
@@ -846,7 +959,7 @@ def _build_payload(
             "other_pct":    sp.get("other_pct", 0),
         },
         "fin_rows":   [row(i) for i in range(len(years))],
-        "wc_rows":    wc.get("yearly_metrics", []),
+        "wc_rows":    _transform_wc_rows(wc.get("yearly_metrics", [])),
         "scorecard": {
             "grade":     sc.get("risk_grade", ""),
             "label":     sc.get("risk_label", ""),
@@ -882,7 +995,40 @@ def _build_payload(
             "risk_factors":       narrative.risk_factors,
             "recommendation":     narrative.recommendation,
         },
+        "insights": _format_insights(insights) if insights else None,
         "override_log": override_log,
+    }
+
+
+def _format_insights(insights: dict) -> dict:
+    """
+    Format insights data for CAM document inclusion.
+    Groups adjustments by pillar and formats for display.
+    """
+    if not insights:
+        return None
+    
+    adjustments = insights.get("adjustments", [])
+    
+    # Group adjustments by pillar
+    by_pillar = {}
+    for adj in adjustments:
+        pillar = adj.get("pillar", "Unknown")
+        if pillar not in by_pillar:
+            by_pillar[pillar] = []
+        by_pillar[pillar].append({
+            "delta": adj.get("delta", 0),
+            "reason": adj.get("reason", ""),
+            "keywords": adj.get("keywords_matched", []),
+        })
+    
+    return {
+        "notes": insights.get("notes", ""),
+        "total_delta": insights.get("total_delta", 0),
+        "created_at": insights.get("created_at", ""),
+        "created_by": insights.get("created_by", ""),
+        "adjustments_by_pillar": by_pillar,
+        "has_adjustments": len(adjustments) > 0,
     }
 
 
@@ -915,6 +1061,7 @@ def _write_txt_fallback(payload: dict, case_id: str) -> Path:
     sc  = payload["scorecard"]
     ln  = payload["loan"]
     nav = payload["narrative"]
+    ins = payload.get("insights")
 
     lines = [
         "CREDIT APPRAISAL MEMORANDUM", "=" * 60,
@@ -931,6 +1078,22 @@ def _write_txt_fallback(payload: dict, case_id: str) -> Path:
             f"  {r['year']}: Rev={r['revenue']:.0f}L  EBITDA={r['ebitda']:.0f}L"
             f"  PAT={r['pat']:.0f}L  Debt={r['total_debt']:.0f}L  TNW={r['tnw']:.0f}L"
         )
+    
+    # Add Field Observations section if insights exist
+    if ins and ins.get("has_adjustments"):
+        lines += [
+            "", "FIELD OBSERVATIONS", "-" * 40,
+            ins["notes"], "",
+            "Score Adjustments from Field Intelligence:", ""
+        ]
+        for pillar, adjustments in ins["adjustments_by_pillar"].items():
+            pillar_total = sum(adj["delta"] for adj in adjustments)
+            lines.append(f"  {pillar}: {pillar_total:+d} pts")
+            for adj in adjustments:
+                lines.append(f"    - {adj['reason']}")
+        lines.append(f"\nNet score impact: {ins['total_delta']:+d} pts")
+        lines.append("")
+    
     lines += [
         "", "RECOMMENDATION", "-" * 40,
         nav["recommendation"],

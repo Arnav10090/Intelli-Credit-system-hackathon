@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\datetimes\greek.py
+# hypothesis_version: 6.151.9
+
+['Apr', 'Aug', 'Dec', 'Feb', 'Fri', 'Jan', 'Jul', 'Jun', 'Mar', 'May', 'Mon', 'Nov', 'Oct', 'Sat', 'Sep', 'Sun', 'Thu', 'Tue', 'Wed', 'day', 'hour', 'minute', 'month', 'second', 'wday', 'year', 'zonediff', 'Απρ', 'Αυγ', 'Αύγ', 'Δεκ', 'Δευ', 'Ιαν', 'Ιολ', 'Ιον', 'Ιούλ', 'Ιούν', 'Κυρ', 'Μάι', 'Μάώ', 'Μαι', 'Μαϊ', 'Μαώ', 'Νοέ', 'Νοε', 'Οκτ', 'Παρ', 'Πεμ', 'Σαβ', 'Σεπ', 'Τετ', 'Τρι', 'Φεβ']

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\datetimes\w3dtf.py
+# hypothesis_version: 6.151.9
+
+['+', '-', '0', '00:00:00z', '1', ':', 'a', 'adt', 'ast', 'at', 'cdt', 'cst', 'ct', 'edt', 'est', 'et', 'gmt', 'm', 'mdt', 'mst', 'mt', 'n', 'pdt', 'pst', 'pt', 't', 'ut', 'y', 'z']

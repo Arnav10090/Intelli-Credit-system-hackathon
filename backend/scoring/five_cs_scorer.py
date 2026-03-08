@@ -78,13 +78,25 @@ class ScorecardResult:
     base_rate_pct: float = 0.0
     recommended_rate_pct: float = 0.0
 
+    # Insight adjustments applied (for traceability)
+    insight_adjustments_applied: list[dict] = field(default_factory=list)
+
+    # Insight adjustments applied (for traceability)
+    insight_adjustments_applied: list[dict] = field(default_factory=list)
+
+
 
 # ── Main Scoring Function ─────────────────────────────────────────────────────
 
-def compute_score(features: FeatureSet) -> ScorecardResult:
+def compute_score(features: FeatureSet, insight_adjustments: list[dict] | None = None) -> ScorecardResult:
     """
     Main entry point. Takes a FeatureSet and returns a complete ScorecardResult.
     Called from score_routes.py.
+    
+    Args:
+        features: Engineered features from financial data
+        insight_adjustments: Optional list of {"pillar": str, "delta": int, "reason": str}
+                           from insight scorer to adjust pillar scores
     """
     logger.info("Running Five Cs scorecard")
 
@@ -194,6 +206,38 @@ def compute_score(features: FeatureSet) -> ScorecardResult:
     conditions_score = sector_pts + cust_pts + reg_pts
 
     # ─────────────────────────────────────────────────────────────────────────
+    # APPLY INSIGHT ADJUSTMENTS (if provided)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    applied_adjustments = []
+    if insight_adjustments:
+        pillar_scores = {
+            "Character": character_score,
+            "Capacity": capacity_score,
+            "Capital": capital_score,
+            "Collateral": collateral_score,
+            "Conditions": conditions_score,
+        }
+        pillar_max = {
+            "Character": 60,
+            "Capacity": 60,
+            "Capital": 45,
+            "Collateral": 30,
+            "Conditions": 35,
+        }
+        
+        adjusted_scores = _apply_adjustments(pillar_scores, pillar_max, insight_adjustments)
+        
+        character_score = adjusted_scores["Character"]
+        capacity_score = adjusted_scores["Capacity"]
+        capital_score = adjusted_scores["Capital"]
+        collateral_score = adjusted_scores["Collateral"]
+        conditions_score = adjusted_scores["Conditions"]
+        
+        applied_adjustments = insight_adjustments.copy()
+        logger.info(f"Applied {len(applied_adjustments)} insight adjustments")
+
+    # ─────────────────────────────────────────────────────────────────────────
     # TOTALS & GRADE
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -237,6 +281,7 @@ def compute_score(features: FeatureSet) -> ScorecardResult:
         interest_premium_bps=premium_bps,
         base_rate_pct=base_rate,
         recommended_rate_pct=recommended_rate,
+        insight_adjustments_applied=applied_adjustments,
     )
 
     logger.info(
@@ -422,6 +467,44 @@ def _score_regulatory_environment(value: float) -> int:
 # ═══════════════════════════════════════════════════════════════════════════════
 # HELPERS
 # ═══════════════════════════════════════════════════════════════════════════════
+
+def _apply_adjustments(
+    pillar_scores: dict[str, int],
+    pillar_max: dict[str, int],
+    adjustments: list[dict]
+) -> dict[str, int]:
+    """
+    Apply insight adjustments to pillar scores with bounds enforcement.
+    
+    Args:
+        pillar_scores: Current pillar scores {"Character": X, "Capacity": Y, ...}
+        pillar_max: Maximum points per pillar {"Character": 60, "Capacity": 60, ...}
+        adjustments: List of {"pillar": str, "delta": int, ...}
+    
+    Returns:
+        Adjusted pillar scores with bounds enforced [0, pillar_max]
+    """
+    adjusted = pillar_scores.copy()
+    
+    for adj in adjustments:
+        pillar = adj.get("pillar")
+        delta = adj.get("delta", 0)
+        
+        if pillar not in adjusted:
+            logger.warning(f"Invalid pillar name in adjustment: {pillar}")
+            continue
+        
+        # Apply delta with bounds enforcement
+        new_score = adjusted[pillar] + delta
+        adjusted[pillar] = max(0, min(new_score, pillar_max[pillar]))
+        
+        logger.debug(
+            f"Applied adjustment to {pillar}: {pillar_scores[pillar]} + {delta} = "
+            f"{adjusted[pillar]} (bounded to [0, {pillar_max[pillar]}])"
+        )
+    
+    return adjusted
+
 
 def _get_grade(normalised: int) -> tuple[str, str]:
     """Return (grade, label) from normalised 0-100 score."""
@@ -618,4 +701,5 @@ def scorecard_to_dict(result: ScorecardResult) -> dict:
         "interest_premium_bps":  result.interest_premium_bps,
         "base_rate_pct":         result.base_rate_pct,
         "recommended_rate_pct":  result.recommended_rate_pct,
+        "insight_adjustments_applied": result.insight_adjustments_applied,
     }

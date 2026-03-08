@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\_joblib.py
+# hypothesis_version: 6.151.9
+
+['Memory', 'Parallel', '__version__', 'cpu_count', 'delayed', 'dump', 'effective_n_jobs', 'hash', 'ignore', 'joblib', 'load', 'logger', 'parallel_backend']

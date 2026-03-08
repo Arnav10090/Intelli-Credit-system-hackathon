@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\util.py
+# hypothesis_version: 6.151.9
+
+['category', 'channel', 'copyright', 'copyright_detail', 'date', 'date_parsed', 'description', 'description_detail', 'enclosure', 'enclosures', 'entries', 'feed', 'guid', 'href', 'id', 'issued', 'issued_parsed', 'items', 'license', 'links', 'modified', 'modified_parsed', 'published', 'published_parsed', 'rel', 'rights', 'rights_detail', 'subtitle', 'subtitle_detail', 'summary', 'summary_detail', 'tagline', 'tagline_detail', 'tags', 'term', 'updated', 'updated_parsed', 'url']

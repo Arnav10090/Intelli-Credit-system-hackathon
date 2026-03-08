@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\ensemble\_weight_boosting.py
+# hypothesis_version: 6.151.9
+
+[-1.0, 0.0, 0.5, 1.0, 'AdaBoostClassifier', 'AdaBoostRegressor', 'SAMME', 'SAMME.R', 'algorithm', 'classes_', 'csc', 'csr', 'estimator', 'exponential', 'fit', 'learning_rate', 'left', 'linear', 'loss', 'n_estimators', 'neither', 'predict', 'predict_proba', 'random_state', 'sample_weight', 'square']

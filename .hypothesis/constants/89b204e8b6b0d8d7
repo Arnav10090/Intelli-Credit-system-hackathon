@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\ensemble\_hist_gradient_boosting\predictor.py
+# hypothesis_version: 6.151.9
+
+['depth', 'is_leaf', 'same_kind']

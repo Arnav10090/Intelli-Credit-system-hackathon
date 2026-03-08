@@ -18,7 +18,6 @@ LLM is NOT used here. All extraction is deterministic.
 
 from __future__ import annotations
 
-import json
 import logging
 import re
 from dataclasses import dataclass, field
@@ -50,7 +49,62 @@ try:
 except ImportError:
     CV2_AVAILABLE = False
 
-from config import settings, LEXICON_PATH
+from config import settings
+
+# Company name detection patterns (Requirements 2.2)
+# Patterns ordered to match most specific to least specific
+# Note: Using [ \t] instead of \s to avoid matching newlines
+COMPANY_PATTERNS = [
+    # Pattern for "Pvt. Ltd." or "Pvt Ltd" (common in India)
+    r'([A-Z][A-Za-z]+(?:[ \t]+[A-Z&][A-Za-z]*)*[ \t]+Pvt\.[ \t]*Ltd\.)',
+    # Pattern for "Private Limited" (mixed case)
+    r'([A-Z][A-Za-z]+(?:[ \t]+[A-Z&][A-Za-z]*)*[ \t]+Private[ \t]+Limited)\b',
+    # Pattern for all-caps legal suffixes
+    r'([A-Z][A-Za-z]+(?:[ \t]+[A-Z&][A-Za-z]*)*[ \t]+(?:LIMITED|LTD|PVT|PRIVATE|COMPANY|CORPORATION))\b',
+    # Pattern for mixed-case legal suffixes (excluding Private Limited which is handled above)
+    r'([A-Z][A-Za-z]+(?:[ \t]+[A-Z&][A-Za-z]*)*[ \t]+(?:Limited|Ltd|Company|Corporation))\b',
+    # Pattern for "Pvt." or "Ltd." with period
+    r'([A-Z][A-Za-z]+(?:[ \t]+[A-Z&][A-Za-z]*)*[ \t]+(?:Pvt|Ltd)\.)',
+]
+
+# Currency pattern for financial figure extraction (Requirements 3.1, 3.2, 3.5)
+# Matches currency indicators (₹, Rs., Rs, INR) followed by numeric values
+# Supports Indian number formats with Crore, Cr, Lakh, Lac suffixes
+CURRENCY_PATTERN = r'(?:₹|Rs\.?|INR)\s*[\d,]+(?:\.\d+)?(?:\s*(?:Crore|Cr|Lakh|Lac))?'
+
+# Key sections for document section detection (Requirements 4.2)
+# Standard financial document sections to detect
+KEY_SECTIONS = [
+    "Directors Report",
+    "Director's Report",
+    "Balance Sheet",
+    "Profit and Loss",
+    "P&L Statement",
+    "Cash Flow",
+    "Notes to Accounts",
+    "Auditors Report",
+    "Auditor's Report",
+    "Independent Auditor"
+]
+
+# Risk keywords for risk phrase detection (Requirements 5.2)
+# Case-insensitive matching will be applied during detection
+RISK_KEYWORDS = [
+    "litigation",
+    "NCLT",
+    "NPA",
+    "non-performing",
+    "default",
+    "winding up",
+    "insolvency",
+    "bankruptcy",
+    "dishonour",
+    "dishonored",
+    "penalty",
+    "show cause",
+    "regulatory action",
+    "fraud"
+]
 
 
 @dataclass
@@ -110,7 +164,10 @@ async def extract_pdf(doc_id: str, file_path: str) -> PDFExtractionResult:
     low_conf_pages = [p.page_num for p in pages
                       if p.confidence < settings.OCR_CONFIDENCE_THRESHOLD]
 
-    risk_phrases = _detect_risk_phrases(full_text, pages)
+    # Extract page texts for risk phrase detection
+    page_texts = [p.text for p in pages]
+    
+    risk_phrases = _detect_risk_phrases(page_texts)
     section_hdrs = _extract_section_headers(full_text)
     fin_figures  = _extract_financial_figures(full_text)
     doc_type     = _detect_document_type(full_text, path.name)
@@ -138,6 +195,195 @@ async def extract_pdf(doc_id: str, file_path: str) -> PDFExtractionResult:
     return result
 
 
+def _extract_text_with_pymupdf(pdf_document) -> tuple[list[str], list[int]]:
+    """
+    Extract text from all pages using PyMuPDF (fitz).
+    
+    Args:
+        pdf_document: An opened fitz.Document object
+        
+    Returns:
+        Tuple of (page_texts: list[str], char_counts: list[int])
+        - page_texts: List of extracted text strings, one per page
+        - char_counts: List of character counts, one per page
+        
+    Raises:
+        Exception: If PyMuPDF encounters errors during text extraction
+    """
+    page_texts = []
+    char_counts = []
+    
+    try:
+        for page_num in range(len(pdf_document)):
+            page = pdf_document[page_num]
+            text = page.get_text("text")
+            page_texts.append(text)
+            char_counts.append(len(text))
+    except Exception as e:
+        logger.error("PyMuPDF text extraction failed: %s", e)
+        raise
+    
+    return page_texts, char_counts
+
+
+def _calculate_confidence(char_counts: list[int]) -> float:
+    """
+    Calculate confidence score based on character counts per page.
+
+    Args:
+        char_counts: List of character counts, one per page
+
+    Returns:
+        Float between 0.0 and 1.0 representing the ratio of pages
+        with more than 100 characters to total pages
+
+    Requirements: 1.5
+    """
+    if not char_counts:
+        return 0.0
+
+    pages_with_content = sum(1 for count in char_counts if count > 100)
+    confidence_score = pages_with_content / len(char_counts)
+
+    return confidence_score
+
+
+def _apply_ocr_fallback(pdf_document, low_confidence_pages: list[int]) -> list[str]:
+    """
+    Apply OCR fallback to pages with low confidence extraction.
+    
+    Args:
+        pdf_document: An opened fitz.Document object
+        low_confidence_pages: List of 0-indexed page numbers that need OCR
+        
+    Returns:
+        List of OCR-extracted text strings, one per low_confidence_page.
+        Returns empty strings for pages that fail OCR or if pytesseract is unavailable.
+        
+    Requirements: 1.3, 1.6, 12.2, 12.4
+    
+    Notes:
+        - Limits OCR processing to first 3 pages maximum for performance
+        - Handles missing pytesseract gracefully by returning empty strings
+        - Uses 300 DPI for OCR quality
+    """
+    ocr_texts = []
+    
+    # Check if pytesseract is available
+    if not TESSERACT_AVAILABLE:
+        logger.warning("pytesseract not available. Returning empty strings for OCR fallback.")
+        return [""] * len(low_confidence_pages)
+    
+    # Limit to first 3 pages for performance (Requirement 12.2, 12.4)
+    pages_to_process = low_confidence_pages[:3]
+    
+    for page_idx in pages_to_process:
+        try:
+            # Get the page object
+            page = pdf_document[page_idx]
+            
+            # Render page to image at 300 DPI
+            mat = fitz.Matrix(300 / 72, 300 / 72)
+            pix = page.get_pixmap(matrix=mat, alpha=False)
+            img_bytes = pix.tobytes("png")
+            img = Image.open(io.BytesIO(img_bytes))
+            
+            # Apply OpenCV preprocessing if available
+            if CV2_AVAILABLE:
+                img = _preprocess_image_cv2(img)
+            
+            # Run Tesseract OCR
+            text = pytesseract.image_to_string(
+                img,
+                lang=settings.OCR_LANG,
+                config="--psm 6"
+            )
+            
+            ocr_texts.append(text.strip())
+            logger.info(f"OCR completed for page {page_idx + 1}: {len(text)} characters extracted")
+            
+        except Exception as e:
+            logger.error(f"OCR failed on page {page_idx + 1}: {e}")
+            ocr_texts.append("")
+    
+    # If we had more than 3 pages but only processed 3, fill the rest with empty strings
+    remaining_pages = len(low_confidence_pages) - len(pages_to_process)
+    if remaining_pages > 0:
+        ocr_texts.extend([""] * remaining_pages)
+        logger.info(f"Skipped OCR for {remaining_pages} pages beyond the first 3")
+    
+    return ocr_texts
+
+
+def _apply_ocr_fallback(pdf_document, low_confidence_pages: list[int]) -> list[str]:
+    """
+    Apply OCR fallback to pages with low confidence extraction.
+
+    Args:
+        pdf_document: An opened fitz.Document object
+        low_confidence_pages: List of 0-indexed page numbers that need OCR
+
+    Returns:
+        List of OCR-extracted text strings, one per low_confidence_page.
+        Returns empty strings for pages that fail OCR or if pytesseract is unavailable.
+
+    Requirements: 1.3, 1.6, 12.2, 12.4
+
+    Notes:
+        - Limits OCR processing to first 3 pages maximum for performance
+        - Handles missing pytesseract gracefully by returning empty strings
+        - Uses 300 DPI for OCR quality
+    """
+    ocr_texts = []
+
+    # Check if pytesseract is available
+    if not TESSERACT_AVAILABLE:
+        logger.warning("pytesseract not available. Returning empty strings for OCR fallback.")
+        return [""] * len(low_confidence_pages)
+
+    # Limit to first 3 pages for performance (Requirement 12.2, 12.4)
+    pages_to_process = low_confidence_pages[:3]
+
+    for page_idx in pages_to_process:
+        try:
+            # Get the page object
+            page = pdf_document[page_idx]
+
+            # Render page to image at 300 DPI
+            mat = fitz.Matrix(300 / 72, 300 / 72)
+            pix = page.get_pixmap(matrix=mat, alpha=False)
+            img_bytes = pix.tobytes("png")
+            img = Image.open(io.BytesIO(img_bytes))
+
+            # Apply OpenCV preprocessing if available
+            if CV2_AVAILABLE:
+                img = _preprocess_image_cv2(img)
+
+            # Run Tesseract OCR
+            text = pytesseract.image_to_string(
+                img,
+                lang=settings.OCR_LANG,
+                config="--psm 6"
+            )
+
+            ocr_texts.append(text.strip())
+            logger.info(f"OCR completed for page {page_idx + 1}: {len(text)} characters extracted")
+
+        except Exception as e:
+            logger.error(f"OCR failed on page {page_idx + 1}: {e}")
+            ocr_texts.append("")
+
+    # If we had more than 3 pages but only processed 3, fill the rest with empty strings
+    remaining_pages = len(low_confidence_pages) - len(pages_to_process)
+    if remaining_pages > 0:
+        ocr_texts.extend([""] * remaining_pages)
+        logger.info(f"Skipped OCR for {remaining_pages} pages beyond the first 3")
+
+    return ocr_texts
+
+
+
+
 def _process_page(page, page_num: int) -> PageResult:
     """Process a single page: digital first, OCR fallback."""
     digital_text = page.get_text("text").strip()
@@ -154,6 +400,9 @@ def _process_page(page, page_num: int) -> PageResult:
             warnings=["Tesseract not available; scanned page skipped"],
         )
     return _ocr_page(page, page_num)
+
+
+
 
 
 def _ocr_page(page, page_num: int) -> PageResult:
@@ -234,62 +483,154 @@ def _deskew(image):
         return image
 
 
-def _detect_risk_phrases(full_text: str, pages: list) -> list:
-    """Scan for litigation/risk phrases from the lexicon."""
-    try:
-        with open(LEXICON_PATH) as f:
-            lexicon = json.load(f)
-    except Exception as e:
-        logger.error("Failed to load lexicon: %s", e)
-        return []
+def _detect_company_name(page_texts: list[str]) -> str | None:
+    """
+    Detect company name from the first 5 pages.
+    
+    **Validates: Requirements 2.1, 2.3, 2.4, 2.5**
+    
+    Searches for company name patterns containing legal suffixes like
+    LIMITED, LTD, PVT, PRIVATE, COMPANY, or CORPORATION.
+    
+    Args:
+        page_texts: List of text strings, one per page
+        
+    Returns:
+        Full company name with legal suffixes, or None if no match found
+    """
+    # Search only first 5 pages (Requirement 2.1)
+    pages_to_search = page_texts[:5]
+    
+    # Prioritize earlier pages by searching in order (Requirement 2.3)
+    for page_text in pages_to_search:
+        for pattern in COMPANY_PATTERNS:
+            match = re.search(pattern, page_text)
+            if match:
+                # Return full company name including legal suffixes (Requirement 2.5)
+                return match.group(1).strip()
+    
+    # Return None if no pattern matches (Requirement 2.4)
+    return None
 
-    found = []
+
+def _detect_key_sections(full_text: str) -> list[str]:
+    """
+    Detect key document sections by matching against predefined list.
+    
+    **Validates: Requirements 4.1, 4.3, 4.4, 4.5**
+    
+    Performs case-insensitive matching for standard financial document sections.
+    Handles whitespace variations and line breaks. Returns deduplicated list.
+    
+    Args:
+        full_text: Complete extracted text from the PDF
+        
+    Returns:
+        List of detected section names (deduplicated)
+    """
+    detected_sections = []
     seen = set()
-    page_texts = {p.page_num: p.text for p in pages}
-    tier_order = {"tier_1": 0, "tier_2": 1, "tier_3": 2, "positive_signals": 3}
+    
+    # Normalize the full text for matching: collapse whitespace and line breaks
+    # This handles sections split across lines or with extra whitespace (Requirement 4.5)
+    normalized_text = re.sub(r'\s+', ' ', full_text)
+    
+    # Perform case-insensitive matching against KEY_SECTIONS (Requirement 4.3)
+    for section in KEY_SECTIONS:
+        # Normalize the section name for matching
+        normalized_section = re.sub(r'\s+', ' ', section)
+        
+        # Create a regex pattern that allows flexible whitespace
+        # This handles variations in whitespace and line breaks
+        pattern = re.escape(normalized_section).replace(r'\ ', r'\s+')
+        
+        # Search case-insensitively
+        if re.search(pattern, normalized_text, re.IGNORECASE):
+            # Use lowercase for deduplication check (Requirement 4.4)
+            section_lower = section.lower()
+            if section_lower not in seen:
+                seen.add(section_lower)
+                detected_sections.append(section)
+    
+    return detected_sections
 
-    for tier_key in ("tier_1", "tier_2", "tier_3", "positive_signals"):
-        tier_data = lexicon.get(tier_key, {})
-        score_delta = tier_data.get("score_delta", 0)
-        label = tier_data.get("label", tier_key)
 
-        for phrase in tier_data.get("phrases", []):
-            phrase_lower = phrase.lower()
-            if phrase_lower in seen:
-                continue
+def _detect_risk_phrases(page_texts: list[str]) -> list[dict]:
+    """
+    Scan for risk keywords with page numbers.
+    
+    **Validates: Requirements 5.1, 5.3, 5.4, 5.5**
+    
+    Scans all page texts for risk keywords from RISK_KEYWORDS list.
+    Performs case-insensitive matching and tracks page numbers.
+    Returns deduplicated list of dicts with 'phrase' and 'page' fields.
+    
+    Args:
+        page_texts: List of text strings, one per page
+        
+    Returns:
+        List of dicts with 'phrase' (str) and 'page' (int, 1-indexed)
+    """
+    detected_phrases = []
+    seen = set()
+    
+    # Scan each page for risk keywords (Requirement 5.1)
+    for page_num, page_text in enumerate(page_texts, start=1):
+        page_text_lower = page_text.lower()
+        
+        # Check each risk keyword (Requirement 5.2)
+        for keyword in RISK_KEYWORDS:
+            keyword_lower = keyword.lower()
+            
+            # Case-insensitive matching (Requirement 5.3)
+            if keyword_lower in page_text_lower:
+                # Deduplicate: only add if not already seen (Requirement 5.4)
+                if keyword_lower not in seen:
+                    seen.add(keyword_lower)
+                    detected_phrases.append({
+                        'phrase': keyword,  # Use original keyword casing
+                        'page': page_num    # 1-indexed page number (Requirement 5.5)
+                    })
+    
+    return detected_phrases
 
-            matches = list(re.finditer(
-                re.escape(phrase_lower), full_text.lower()
-            ))
-            if not matches:
-                continue
 
-            match = matches[0]
-            start = max(0, match.start() - 100)
-            end   = min(len(full_text), match.end() + 100)
-            context = full_text[start:end].replace("\n", " ").strip()
+def _generate_text_preview(full_text: str, max_chars: int = 2000) -> str:
+    """
+    Generate a preview of the extracted text.
+    
+    **Validates: Requirements 6.1, 6.3, 6.4, 6.5**
+    
+    Extracts the first max_chars characters from the full text,
+    preserving line breaks and basic formatting. Truncates at word
+    boundaries when possible to avoid cutting words.
+    
+    Args:
+        full_text: Complete extracted text from the PDF
+        max_chars: Maximum number of characters to include (default: 2000)
+        
+    Returns:
+        Text preview string, truncated to max_chars or less
+    """
+    # If text is shorter than max_chars, return all of it (Requirement 6.4)
+    if len(full_text) <= max_chars:
+        return full_text
+    
+    # Extract first max_chars characters (Requirement 6.1)
+    preview = full_text[:max_chars]
+    
+    # Try to truncate at word boundary (Requirement 6.5)
+    # Find the last space within the preview
+    last_space = preview.rfind(' ')
+    
+    # If we found a space and it's reasonably close to the end (within 50 chars),
+    # truncate there to avoid cutting a word
+    if last_space > max_chars - 50:
+        preview = preview[:last_space]
+    
+    # Line breaks and basic formatting are preserved automatically (Requirement 6.3)
+    return preview
 
-            # Negation check
-            ctx_before = context.lower()[:100]
-            if any(neg in ctx_before for neg in
-                   ["no ", "not ", "never ", "without ", "nil "]):
-                continue
-
-            page_num = _find_page_for_text(phrase, page_texts)
-            seen.add(phrase_lower)
-            found.append({
-                "phrase": phrase,
-                "tier": tier_key,
-                "tier_label": label,
-                "score_delta": score_delta,
-                "page_num": page_num,
-                "context": context,
-                "occurrence_count": len(matches),
-            })
-
-    found.sort(key=lambda x: tier_order.get(x["tier"], 9))
-    logger.info("Risk phrase detection: %d phrases found", len(found))
-    return found
 
 
 def _extract_section_headers(full_text: str) -> list:
@@ -318,55 +659,34 @@ def _extract_section_headers(full_text: str) -> list:
 
 def _extract_financial_figures(full_text: str) -> dict:
     """
-    Extract key financial figures using regex.
-    DETERMINISTIC — no LLM. Conservative patterns to avoid false positives.
+    Extract all financial figures with currency indicators from text.
+    Returns a dict with 'figures' (list of dicts with 'value' and 'context')
+    and 'count' (total number of figures found).
+    
+    Requirements: 3.1, 3.3, 3.4
     """
-    figures = {}
-    text = re.sub(r"\s+", " ", full_text)
-
-    patterns = {
-        "revenue": [
-            r"(?:revenue from operations|net revenue|turnover)[^\d]{0,30}([\d,]+(?:\.\d+)?)",
-        ],
-        "ebitda": [
-            r"(?:EBITDA|earnings before interest)[^\d]{0,30}([\d,]+(?:\.\d+)?)",
-        ],
-        "pat": [
-            r"(?:profit after tax|PAT|profit for the year)[^\d]{0,30}([\d,]+(?:\.\d+)?)",
-        ],
-        "total_debt": [
-            r"(?:total borrowings|total debt)[^\d]{0,30}([\d,]+(?:\.\d+)?)",
-        ],
-        "net_worth": [
-            r"(?:net worth|shareholders.{0,5}equity)[^\d]{0,30}([\d,]+(?:\.\d+)?)",
-        ],
-        "total_assets": [
-            r"(?:total assets)[^\d]{0,20}([\d,]+(?:\.\d+)?)",
-        ],
-        "dscr_stated": [
-            r"(?:DSCR|debt service coverage)[^\d]{0,20}([\d]+\.[\d]+)",
-        ],
-        "loan_amount_sanctioned": [
-            r"(?:sanctioned|sanction amount|loan amount)[^\d]{0,30}"
-            r"(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d+)?)",
-        ],
-        "interest_rate_stated": [
-            r"(?:interest rate|rate of interest|ROI)[^\d]{0,20}([\d]+\.?[\d]*)\s*%",
-        ],
+    figures_list = []
+    
+    # Find all matches of currency patterns in the text
+    for match in re.finditer(CURRENCY_PATTERN, full_text, re.IGNORECASE):
+        value = match.group(0)
+        start_pos = match.start()
+        end_pos = match.end()
+        
+        # Extract context: 20 characters before and after
+        context_start = max(0, start_pos - 20)
+        context_end = min(len(full_text), end_pos + 20)
+        context = full_text[context_start:context_end].strip()
+        
+        figures_list.append({
+            'value': value,
+            'context': context
+        })
+    
+    return {
+        'figures': figures_list,
+        'count': len(figures_list)
     }
-
-    for field_name, pattern_list in patterns.items():
-        for pattern in pattern_list:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                raw = match.group(1).replace(",", "")
-                try:
-                    figures[field_name] = float(raw)
-                    break
-                except ValueError:
-                    continue
-
-    return figures
 
 
 def _detect_document_type(full_text: str, filename: str) -> str:
@@ -399,13 +719,6 @@ def _has_table_hint(text: str) -> bool:
         if len(re.findall(r"\d+[,\d]*\.?\d*", line)) >= 3
     )
     return lines_with_nums >= 2
-
-
-def _find_page_for_text(phrase: str, page_texts: dict) -> Optional[int]:
-    for page_num, text in page_texts.items():
-        if phrase.lower() in text.lower():
-            return page_num
-    return None
 
 
 def _collect_warnings(pages: list, low_conf_pages: list) -> list:
@@ -458,3 +771,117 @@ def result_to_dict(result: PDFExtractionResult) -> dict:
             for p in result.pages
         ],
     }
+
+
+
+def extract_from_pdf(file_bytes: bytes, filename: str) -> dict:
+    """
+    Main orchestrator function for PDF text extraction and structured data extraction.
+
+    This function coordinates all helper functions to extract text from a PDF and
+    identify structured entities like company names, financial figures, sections,
+    and risk phrases.
+
+    **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5**
+
+    Args:
+        file_bytes: Raw bytes of the PDF file
+        filename: Original filename for logging/debugging
+
+    Returns:
+        Dictionary containing:
+        - page_count: int - Number of pages in the PDF
+        - extraction_method: str - "digital", "ocr", or "ocr_unavailable"
+        - confidence_score: float - 0.0 to 1.0 ratio of high-quality pages
+        - company_name: str | None - Detected company name or None
+        - financial_figures: list[dict] - List of dicts with 'value' and 'context'
+        - key_sections: list[str] - List of detected section names
+        - risk_phrases: list[dict] - List of dicts with 'phrase' and 'page'
+        - raw_text_preview: str - First 2000 characters of extracted text
+
+    Raises:
+        Exception: If PyMuPDF is not available or PDF cannot be opened
+    """
+    # Check if PyMuPDF is available (Requirement 10.1)
+    if not PYMUPDF_AVAILABLE:
+        logger.error("PyMuPDF library not available")
+        raise Exception("PyMuPDF library not available")
+
+    try:
+        # Open PDF with PyMuPDF (Requirement 10.2)
+        pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
+    except Exception as e:
+        logger.error(f"Failed to open PDF {filename}: {e}")
+        raise Exception(f"Unable to process PDF file: {str(e)}")
+
+    try:
+        # Extract text from all pages using PyMuPDF (Requirement 1.2, 10.2)
+        page_texts, char_counts = _extract_text_with_pymupdf(pdf_document)
+
+        # Calculate confidence score (Requirement 1.5, 10.2)
+        confidence_score = _calculate_confidence(char_counts)
+
+        # Determine if OCR fallback is needed (Requirement 1.3, 10.2)
+        # Pages with < 100 characters need OCR
+        low_confidence_pages = [i for i, count in enumerate(char_counts) if count < 100]
+
+        extraction_method = "digital"
+
+        # Apply OCR fallback if needed (Requirement 1.3, 10.2)
+        if low_confidence_pages:
+            # Check if pytesseract is available (Requirement 1.6, 10.3)
+            if not TESSERACT_AVAILABLE:
+                extraction_method = "ocr_unavailable"
+                logger.warning(f"OCR needed for {len(low_confidence_pages)} pages but pytesseract unavailable")
+            else:
+                # Apply OCR to low confidence pages (first 3 max)
+                ocr_texts = _apply_ocr_fallback(pdf_document, low_confidence_pages)
+
+                # Merge OCR results back into page_texts
+                for i, page_idx in enumerate(low_confidence_pages[:3]):
+                    if i < len(ocr_texts) and ocr_texts[i]:
+                        page_texts[page_idx] = ocr_texts[i]
+                        char_counts[page_idx] = len(ocr_texts[i])
+
+                extraction_method = "ocr"
+
+                # Recalculate confidence after OCR
+                confidence_score = _calculate_confidence(char_counts)
+
+        # Combine all page texts into full text
+        full_text = "\n\n".join(page_texts)
+
+        # Call all pattern matcher functions (Requirement 10.2)
+        company_name = _detect_company_name(page_texts)
+        financial_figures_result = _extract_financial_figures(full_text)
+        key_sections = _detect_key_sections(full_text)
+        risk_phrases = _detect_risk_phrases(page_texts)
+
+        # Generate raw text preview (Requirement 10.2)
+        raw_text_preview = _generate_text_preview(full_text, max_chars=2000)
+
+        # Assemble and return result dictionary (Requirement 1.4, 10.2)
+        result = {
+            "page_count": len(page_texts),
+            "extraction_method": extraction_method,
+            "confidence_score": confidence_score,
+            "company_name": company_name,
+            "financial_figures": financial_figures_result['figures'],
+            "key_sections": key_sections,
+            "risk_phrases": risk_phrases,
+            "raw_text_preview": raw_text_preview
+        }
+
+        logger.info(
+            f"PDF extraction complete: {filename} | pages={result['page_count']} | "
+            f"method={extraction_method} | confidence={confidence_score:.2f} | "
+            f"company={company_name} | figures={len(financial_figures_result['figures'])} | "
+            f"sections={len(key_sections)} | risks={len(risk_phrases)}"
+        )
+
+        return result
+
+    finally:
+        # Always close the PDF document
+        pdf_document.close()
+

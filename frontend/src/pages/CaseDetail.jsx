@@ -8,6 +8,8 @@ import FeatureTable from '../components/FeatureTable.jsx'
 import FinancialChart from '../components/FinancialChart.jsx'
 import ResearchTable from '../components/ResearchTable.jsx'
 import MLValidatorPanel from '../components/MLValidationPanel.jsx'
+import InsightPanel from '../components/InsightPanel.jsx'
+import DocumentUploadPanel from '../components/DocumentUploadPanel.jsx'
 
 /* ── helpers ─────────────────────────────────────────────────── */
 function fmt(v, unit = 'L') {
@@ -129,6 +131,14 @@ export default function CaseDetail({ demo, demoScenario }) {
             })
         } else if (id) {
             setCaseId(id)
+            // Detect scenario from company name when opening via /cases/:id
+            api.listCases().then(cases => {
+                const c = cases.find(cs => cs.id === id)
+                if (c && c.company_name?.toLowerCase().includes('surya')) {
+                    setActiveScenario('surya')
+                }
+                if (c) setCaseData(c)
+            }).catch(() => { })
             refreshAll(id)
         }
     }, [forcedScenario, id])
@@ -261,6 +271,13 @@ export default function CaseDetail({ demo, demoScenario }) {
         setLoad('cam', false)
     }
 
+    const handleInsightsSaved = useCallback(() => {
+        // Refresh score when insights are saved
+        if (score) {
+            doScore()
+        }
+    }, [score, caseId])
+
     /* ── sidebar metrics ─────────────────────────────────────── */
     // Use locked activeScenario state — never re-derive from company name
     const scenario = activeScenario
@@ -380,6 +397,13 @@ export default function CaseDetail({ demo, demoScenario }) {
             {tab === 'Pipeline' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
                     <div>
+                        {/* Document Upload Panel */}
+                        {caseId && (
+                            <div style={{ marginBottom: 20 }}>
+                                <DocumentUploadPanel caseId={caseId} />
+                            </div>
+                        )}
+
                         {/* Decision banner (if scored) */}
                         {score?.decision && (
                             <DecisionBanner
@@ -674,6 +698,22 @@ export default function CaseDetail({ demo, demoScenario }) {
                         </div>
                     ) : (
                         <ResearchTable items={research} />
+                    )}
+
+                    {/* Analyst Notes Section */}
+                    {caseId && (
+                        <div style={{
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 'var(--radius)',
+                            padding: '16px 18px',
+                            marginTop: 20,
+                        }}>
+                            <InsightPanel
+                                caseId={caseId}
+                                onInsightsSaved={handleInsightsSaved}
+                            />
+                        </div>
                     )}
                 </div>
             )}

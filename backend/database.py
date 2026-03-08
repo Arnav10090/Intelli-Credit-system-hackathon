@@ -81,7 +81,12 @@ class Case(Base):
     recon_flags      = relationship("ReconFlag",      back_populates="case", cascade="all, delete-orphan")
     research_results = relationship("ResearchResult", back_populates="case", cascade="all, delete-orphan")
     scoring_results  = relationship("ScoringResult",  back_populates="case", cascade="all, delete-orphan")
+    insights         = relationship("CaseInsight",    back_populates="case", uselist=False)
     audit_logs       = relationship("AuditLog",       back_populates="case")
+
+
+    insights         = relationship("CaseInsight",    back_populates="case", uselist=False)
+
 
 
 class Document(Base):
@@ -223,6 +228,26 @@ class ScoringResult(Base):
     scored_by  = Column(String(100), nullable=True, default="system")
 
     case = relationship("Case", back_populates="scoring_results")
+
+
+class CaseInsight(Base):
+    """
+    Qualitative field observations and their score adjustments.
+    One record per case (upsert pattern).
+    """
+    __tablename__ = "case_insights"
+
+    id              = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    case_id         = Column(String(36), ForeignKey("cases.id"), nullable=False, unique=True, index=True)
+    notes           = Column(Text, nullable=False)
+    adjustments_json = Column(JSON, nullable=False)    # List of adjustment dicts
+    total_delta     = Column(Integer, nullable=False)
+    created_at      = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_by      = Column(String(100), nullable=False)
+    updated_at      = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                             onupdate=lambda: datetime.now(timezone.utc))
+
+    case = relationship("Case", back_populates="insights")
 
 
 class AuditLog(Base):

@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import settings, DEMO_DIR
+from config import settings, DEMO_DIR, DEMO_DIR2
 from database import get_session, Case, ResearchResult
 from audit.audit_logger import log_event
 from research.web_crawler import run_research_agent, result_to_dict as crawler_to_dict
@@ -138,7 +138,6 @@ async def get_research(
 # ── Research Summary ──────────────────────────────────────────────────────────
 
 @router.get("/cases/{case_id}/research/summary",
-            response_model=ResearchSummaryResponse,
             summary="Get aggregated research risk summary")
 async def get_research_summary(
     case_id: str,
@@ -154,10 +153,7 @@ async def get_research_summary(
     items = result.scalars().all()
 
     if not items:
-        raise HTTPException(
-            404,
-            "No research results found. Run POST /research first."
-        )
+        return {"status": "not_run"}
 
     # Build research_cache-style dict from DB records
     research_cache = _db_records_to_cache(items)
@@ -237,7 +233,7 @@ async def load_research_from_cache(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Loads the pre-built Acme Textiles research cache directly into the database.
+    Loads the pre-built research cache directly into the database.
     Bypasses live crawling — instant result.
     Use this for demo when network is unavailable.
     """
@@ -246,7 +242,12 @@ async def load_research_from_cache(
     if not case:
         raise HTTPException(404, f"Case {case_id} not found.")
 
-    demo_rc_path = DEMO_DIR / "research_cache.json"
+    # Determine correct demo directory based on company name
+    if "Surya Pharmaceuticals" in case.company_name:
+        demo_rc_path = DEMO_DIR2 / "research_cache.json"
+    else:
+        demo_rc_path = DEMO_DIR / "research_cache.json"
+    
     if not demo_rc_path.exists():
         raise HTTPException(500, "Demo research cache file not found.")
 
@@ -321,7 +322,11 @@ async def _run_research_background(
     """
     from database import AsyncSessionLocal
 
-    demo_rc_path = DEMO_DIR / "research_cache.json"
+    # Determine correct demo directory based on company name
+    if "Surya Pharmaceuticals" in company_name:
+        demo_rc_path = DEMO_DIR2 / "research_cache.json"
+    else:
+        demo_rc_path = DEMO_DIR / "research_cache.json"
 
     try:
         agent_result = await run_research_agent(

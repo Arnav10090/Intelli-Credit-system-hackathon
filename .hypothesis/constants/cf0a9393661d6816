@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\_tags.py
+# hypothesis_version: 6.151.9
+
+['2darray', 'X_types', '_DEFAULT_TAGS', '_get_tags', '_get_tags()', '_more_tags', '_more_tags()', '_skip_test', '_xfail_checks', 'allow_nan', 'array_api_support', 'binary_only', 'multilabel', 'multioutput', 'multioutput_only', 'no_validation', 'non_deterministic', 'pairwise', 'poor_score', 'preserves_dtype', 'requires_fit', 'requires_positive_X', 'requires_positive_y', 'requires_y', 'stateless']

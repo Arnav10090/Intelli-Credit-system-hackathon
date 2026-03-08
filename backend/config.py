@@ -50,8 +50,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_DIR}/intelli_credit.db"
 
     # ── LLM ───────────────────────────────────────────────────────────────────
-    ANTHROPIC_API_KEY: str = Field(default="", description="Claude API key")
-    LLM_MODEL: str = "claude-sonnet-4-20250514"
+    LLM_API_KEY: str = os.getenv("LLM_API_KEY", "")
+    LLM_BASE_URL: str = os.getenv("LLM_BASE_URL", "https://api.x.ai/v1")
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "grok-3")
     LLM_MAX_TOKENS: int = 1000
     LLM_TEMPERATURE: float = 0.3          # Low temperature for consistent banking tone
 

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sgmllib.py
+# hypothesis_version: 6.151.9
+
+[127, '"', '&', '&#%s%s', '&#([0-9]+)[^0-9]', '&%s', '&%s;', "'", '*** Stack:', '*** Unbalanced </', '*** unknown decl: [', '-', '-s', '...', ':', ';', '<', '<!', '<!--', '<%s/', '</', '<>', '<?', '<[>a-zA-Z]', '=', '>', '???', 'SGMLParseError', 'SGMLParser', '[&<]', '[<>]', ']', '__main__', 'amp', 'apos', 'comment:', 'data:', 'do_', 'end tag: </', 'end_', 'gt', 'lt', 'neither < nor & ??', 'quot', 'r', 'start tag: <', 'start_', 'test.html']

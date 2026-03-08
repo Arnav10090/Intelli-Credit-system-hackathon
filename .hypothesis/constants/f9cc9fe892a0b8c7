@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\dummy.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 50.0, 100.0, '_xfail_checks', 'array-like', 'both', 'constant', 'coo', 'csc', 'csr', 'mean', 'median', 'most_frequent', 'neither', 'no_validation', 'poor_score', 'prior', 'quantile', 'random_state', 'strategy', 'stratified', 'uniform', 'y', 'y must not be empty.']

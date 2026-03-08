@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\Downloads\Intelli-credit-system-hackathon\backend\main.py
+# hypothesis_version: 6.151.9
+
+['*', '/api/docs', '/api/health', '/api/openapi.json', '/api/redoc', '/api/v1', '/outputs', 'CAM Generator', 'Data Ingestor', 'Insights', 'Research Agent', 'Scoring Engine', 'Shutting down %s', 'Starting %s v%s', 'System', 'app', 'base_rate', 'demo_company_cin', 'demo_company_name', 'healthy', 'outputs', 'rbi_repo_rate', 'risk_bands', 'score_max', 'status', 'version']

@@ -129,9 +129,43 @@ async def score_case(
         output_data=features_dict,
     )
 
-    # ── Step 4b: Five Cs Scorecard ─────────────────────────────────────────────
-    scorecard     = compute_score(features)
+    # ── Step 4b: Query Insights (if any) ───────────────────────────────────────
+    from database import CaseInsight
+    insight_adjustments = None
+    total_delta = 0
+    affected_pillars = []
+    
+    insight_result = await session.execute(
+        select(CaseInsight).where(CaseInsight.case_id == case_id)
+    )
+    insight = insight_result.scalar_one_or_none()
+    
+    if insight:
+        insight_adjustments = insight.adjustments_json
+        total_delta = insight.total_delta
+        affected_pillars = list(set(adj.get("pillar") for adj in insight_adjustments))
+        logger.info(
+            f"Found insights for case {case_id}: {len(insight_adjustments)} adjustments, "
+            f"total_delta={total_delta}, affected_pillars={affected_pillars}"
+        )
+
+    # ── Step 4c: Five Cs Scorecard ─────────────────────────────────────────────
+    scorecard     = compute_score(features, insight_adjustments=insight_adjustments)
     scorecard_dict = scorecard_to_dict(scorecard)
+    
+    # Log insight application if adjustments were applied
+    if insight_adjustments:
+        await log_event(
+            session, "INSIGHTS_APPLIED_TO_SCORE",
+            f"Applied {len(insight_adjustments)} insight adjustments: "
+            f"total_delta={total_delta} pts, affected_pillars={affected_pillars}",
+            case_id=case_id,
+            output_data={
+                "total_delta": total_delta,
+                "affected_pillars": affected_pillars,
+                "adjustments": insight_adjustments,
+            },
+        )
 
     await log_event(
         session, "SCORECARD_COMPUTED",

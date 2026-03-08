@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\algorithms\chordal.py
+# hypothesis_version: 6.151.9
+
+['Graph has no nodes.', 'directed', 'find_induced_nodes', 'is_chordal', 'multigraph']

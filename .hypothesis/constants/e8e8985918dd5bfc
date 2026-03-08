@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pydantic\type_adapter.py
+# hypothesis_version: 6.151.9
+
+['$defs', 'T', 'TypeAdapter', '__dict__', '__name__', '__slots__', 'description', 'error', 'json', 'none', 'python', 'title', 'validation', 'warn']

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\compose\_target.py
+# hypothesis_version: 6.151.9
+
+['boolean', 'check_inverse', 'feature_names_in_', 'fit', 'func', 'inverse_func', 'multioutput', 'numeric', 'poor_score', 'predict', 'regressor', 'transform', 'transformer', 'y']

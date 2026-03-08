@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\namespaces\mediarss.py
+# hypothesis_version: 6.151.9
+
+[',', 'content', 'credit', 'license', 'media', 'media_content', 'media_credit', 'media_keywords', 'media_license', 'media_player', 'media_rating', 'media_restriction', 'media_thumbnail', 'rating', 'restriction', 'scheme', 'url']

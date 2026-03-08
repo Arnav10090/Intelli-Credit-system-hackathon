@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\anyio\_backends\_asyncio.py
+# hypothesis_version: 6.151.9
+
+[0.1, 100, 65536, '.', 'AnyIO worker thread', 'T_Retval', 'T_contra', '_SignalReceiver', '__module__', '__qualname__', '_root_task', '_threadpool_workers', 'asyncio', 'cancel_scope', 'cpython', 'cr_frame', 'exception', 'get_name', 'gi_frame', 'i', 'name', 'parent_id', 'read_events', 'reading from', 'socket', 'task_status', 'uvloop.loop', 'write_events', 'writing to']

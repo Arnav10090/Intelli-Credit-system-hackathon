@@ -38,8 +38,7 @@ xgboost==2.0.3
 joblib==1.4.2                  # Model serialisation
 
 # ─── LLM Integration ──────────────────────────────────────────────────────────
-anthropic==0.28.0              # Claude API SDK
-
+openai>=1.0.0                  # OpenAI SDK (used for xAI/Grok)
 # ─── Document Generation ──────────────────────────────────────────────────────
 python-docx==1.1.2             # Word document assembly
 

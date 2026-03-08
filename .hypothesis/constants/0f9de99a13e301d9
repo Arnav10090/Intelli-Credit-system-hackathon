@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\neighbors\_lof.py
+# hypothesis_version: 6.151.9
+
+[-1.5, 1e-10, 0.5, 1.0, 100.0, 'LocalOutlierFactor', 'auto', 'boolean', 'contamination', 'csr', 'minkowski', 'novelty', 'preserves_dtype', 'radius', 'right']

@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\api.py
+# hypothesis_version: 6.151.9
+
+['Atom 0.1', 'Atom 0.2', 'Atom 0.3', 'Atom 1.0', 'CDF', 'LooseFeedParser', 'RSS 0.90', 'RSS 0.91 (Netscape)', 'RSS 0.91 (Userland)', 'RSS 0.92', 'RSS 0.93', 'RSS 0.94', 'RSS 1.0', 'RSS 2.0', 'StrictFeedParser', 'atom', 'atom01', 'atom02', 'atom03', 'atom10', 'bozo', 'bozo_exception', 'cdf', 'content-language', 'content-location', 'drv_libxml2', 'encoding', 'entries', 'feed', 'file', 'ftp', 'headers', 'href', 'http', 'https', 'ignore', 'namespaces', 'rb', 'read', 'replace', 'rss', 'rss090', 'rss091n', 'rss091u', 'rss092', 'rss093', 'rss094', 'rss10', 'rss20', 'unknown', 'utf-8', 'version']

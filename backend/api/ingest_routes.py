@@ -28,8 +28,37 @@ from database import (
 )
 from audit.audit_logger import log_event
 from ingestor.gst_reconciler import run_reconciliation_from_dict
-from ingestor.working_capital_analyzer import analyze_working_capital, result_to_dict as wc_to_dict
+from ingestor.working_capital_analyzer import analyze_working_capital, result_to_dict as _wc_result_to_dict
 from ingestor.related_party_detector import analyze_related_parties, result_to_dict as rp_to_dict
+
+
+def wc_to_dict(wc_result) -> dict:
+    """
+    Convert working capital result to dict with additional aliases for compatibility.
+    
+    Adds aliases for key names expected by tests and CAM generation:
+    - latest_dso (alias for latest_debtor_days)
+    - latest_dpo (alias for latest_creditor_days)
+    - latest_inventory_days (from yearly_metrics)
+    - latest_interest_coverage (from yearly_metrics)
+    """
+    base_dict = _wc_result_to_dict(wc_result)
+    
+    # Add aliases for DSO/DPO
+    base_dict["latest_dso"] = base_dict.get("latest_debtor_days", 0.0)
+    base_dict["latest_dpo"] = base_dict.get("latest_creditor_days", 0.0)
+    
+    # Add latest_inventory_days and latest_interest_coverage from yearly_metrics
+    if base_dict.get("yearly_metrics"):
+        latest_year = base_dict["yearly_metrics"][-1]
+        base_dict["latest_inventory_days"] = latest_year.get("inventory_days", 0.0)
+        base_dict["latest_interest_coverage"] = latest_year.get("interest_coverage", 0.0)
+    else:
+        base_dict["latest_inventory_days"] = 0.0
+        base_dict["latest_interest_coverage"] = 0.0
+    
+    return base_dict
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -153,6 +182,100 @@ async def upload_document(
         doc_type=doc_type, file_hash=file_hash,
         status="uploaded_queued_for_extraction",
     )
+
+
+@router.post("/cases/{case_id}/upload")
+async def upload_document_with_extraction(
+    case_id: str,
+    file: UploadFile = File(...),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Upload and process document with immediate extraction.
+    
+    Subtask 13.1: Locate existing upload endpoint
+    Subtask 13.2: Add file type validation
+    Subtask 13.3: Add file size validation
+    Subtask 13.4: Integrate PDF extraction into upload flow
+    Subtask 13.5: Construct and return UploadResponse
+    
+    Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 10.3, 10.4
+    """
+    from ingestor.models import UploadResponse
+    from ingestor.pdf_parser import extract_from_pdf
+    
+    # Subtask 13.2: File type validation (Requirements 7.1, 10.3)
+    suffix = Path(file.filename).suffix.lower().lstrip(".")
+    allowed_types = ["pdf", "csv", "xlsx"]
+    
+    if suffix not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '.{suffix}'. Only PDF, CSV, and XLSX files are allowed."
+        )
+    
+    # Read file bytes into memory
+    content = await file.read()
+    
+    # Subtask 13.3: File size validation (Requirements 10.4)
+    # 50MB limit as specified in design document
+    max_size_bytes = 50 * 1024 * 1024  # 50MB
+    if len(content) > max_size_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail="File size exceeds maximum limit of 50MB."
+        )
+    
+    # Determine file type
+    file_type = suffix
+    
+    # Subtask 13.4: Integrate PDF extraction (Requirements 7.2, 7.4)
+    if suffix == "pdf":
+        try:
+            # Call extract_from_pdf for PDF files
+            extraction_result = extract_from_pdf(content, file.filename)
+            
+            # Subtask 13.5: Construct UploadResponse (Requirements 7.3, 7.5)
+            # Map extraction result to response model
+            response = UploadResponse(
+                filename=file.filename,
+                file_type=file_type,
+                page_count=extraction_result["page_count"],
+                extraction_method=extraction_result["extraction_method"],
+                confidence_score=extraction_result["confidence_score"],
+                company_name_detected=extraction_result["company_name"],
+                financial_figures_found=len(extraction_result["financial_figures"]),
+                risk_phrases_found=[rp["phrase"] for rp in extraction_result["risk_phrases"]],
+                key_sections_detected=extraction_result["key_sections"],
+                # Truncate raw_text_preview to 500 characters (Requirement 7.5)
+                raw_text_preview=extraction_result["raw_text_preview"][:500] if extraction_result["raw_text_preview"] else None
+            )
+            
+            return response
+            
+        except Exception as e:
+            # Handle extraction errors gracefully (Requirement 7.4)
+            logger.error(f"PDF extraction failed for {file.filename}: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unable to process PDF file: {str(e)}"
+            )
+    else:
+        # For CSV/XLSX files, skip extraction (Requirement 7.4)
+        response = UploadResponse(
+            filename=file.filename,
+            file_type=file_type,
+            page_count=None,
+            extraction_method=None,
+            confidence_score=None,
+            company_name_detected=None,
+            financial_figures_found=0,
+            risk_phrases_found=[],
+            key_sections_detected=[],
+            raw_text_preview=None
+        )
+        
+        return response
 
 
 @router.post("/cases/{case_id}/load-demo", response_model=LoadDemoResponse,
@@ -344,6 +467,9 @@ async def analyze_case(
         existing = fin_doc.extracted_json or {}
         existing["working_capital_analysis"] = wc_dict
         fin_doc.extracted_json = existing
+        # Mark the JSON column as modified so SQLAlchemy persists the change
+        from sqlalchemy.orm import attributes
+        attributes.flag_modified(fin_doc, "extracted_json")
         session.add(fin_doc)
 
     await log_event(
@@ -380,6 +506,9 @@ async def analyze_case(
         existing = fin_doc.extracted_json or {}
         existing["related_party_analysis"] = rp_dict
         fin_doc.extracted_json = existing
+        # Mark the JSON column as modified so SQLAlchemy persists the change
+        from sqlalchemy.orm import attributes
+        attributes.flag_modified(fin_doc, "extracted_json")
         session.add(fin_doc)
 
     await log_event(
@@ -482,6 +611,21 @@ async def list_cases(session: AsyncSession = Depends(get_session)):
         }
         for c in cases
     ]
+
+
+@router.get("/cases/{case_id}/working-capital",
+            summary="Get working capital analysis for a case")
+async def get_working_capital(case_id: str, session: AsyncSession = Depends(get_session)):
+    """Return working capital analysis stored by the /analyze endpoint."""
+    fin_data = await _get_financial_data(case_id, session)
+    if not fin_data:
+        return {"status": "not_analyzed"}
+
+    wc = fin_data.get("working_capital_analysis")
+    if not wc:
+        return {"status": "not_analyzed"}
+
+    return wc
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

@@ -21,8 +21,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create data directories
-RUN mkdir -p /app/data /app/uploads /app/outputs
+# Create data directories and ML models directory
+RUN mkdir -p /app/data /app/uploads /app/outputs /app/ml/models
+
+# Note: ML models are mounted via volume in docker-compose.yml
+# If running standalone, ensure ml/models/ contains credit_validator.joblib
 
 EXPOSE 8000
 

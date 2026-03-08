@@ -1,0 +1,4 @@
+# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\compose\__init__.py
+# hypothesis_version: 6.151.9
+
+['ColumnTransformer', 'make_column_selector']

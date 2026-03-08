@@ -69,6 +69,9 @@ class LoanSizingResult:
     # Binding constraint
     binding_constraint:     str     # "dscr" | "collateral" | "requested" | "policy"
 
+    # Security cover ratio
+    security_cover:         float   # FMV of collateral / loan requested
+
     # Explanation
     sizing_notes:           list[str]
 
@@ -264,6 +267,7 @@ def compute_loan_sizing(
         annual_repayment_cr=    annual_repayment,
         emi_monthly_lakhs=      emi_monthly,
         binding_constraint=     binding,
+        security_cover=         round(features.security_cover, 2),
         sizing_notes=           notes,
     )
 
@@ -289,6 +293,7 @@ def sizing_to_dict(result: LoanSizingResult) -> dict:
             "term_loan_cr":      result.recommended_tm_cr,
             "cc_limit_cr":       result.recommended_cc_cr,
             "binding_constraint":result.binding_constraint,
+            "security_cover":    result.security_cover,
         },
         "rate": {
             "base_rate_pct":          result.base_rate_pct,

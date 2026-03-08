@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings, OUTPUT_DIR, DEMO_DIR
-from database import get_session, Case, Document, ScoringResult, ResearchResult
+from database import get_session, Case, Document, ScoringResult, ResearchResult, CaseInsight
 from audit.audit_logger import log_event
 from cam.llm_narrator import generate_cam_narrative
 from cam.doc_builder import build_cam_docx
@@ -107,6 +107,21 @@ async def generate_cam(
     research_cache = await _load_research_cache(session, case_id)
     lit_summary = summary_to_dict(detect_litigation(research_cache))
 
+    # ── Load insights (field observations) ─────────────────────────────────────
+    insights_rec = await session.execute(
+        select(CaseInsight).where(CaseInsight.case_id == case_id)
+    )
+    insights = insights_rec.scalar_one_or_none()
+    insights_dict = None
+    if insights:
+        insights_dict = {
+            "notes": insights.notes,
+            "adjustments": insights.adjustments_json,
+            "total_delta": insights.total_delta,
+            "created_at": insights.created_at.isoformat() if insights.created_at else "",
+            "created_by": insights.created_by,
+        }
+
     # ── Build scorecard + loan sizing dicts from stored result ─────────────────
     fv = sc_rec.feature_values or {}
     scorecard_dict = {
@@ -143,6 +158,7 @@ async def generate_cam(
         rp_analysis=rp_analysis,
         research_cache=research_cache,
         lit_summary=lit_summary,
+        insights=insights_dict,
     )
 
     await log_event(
@@ -166,6 +182,7 @@ async def generate_cam(
         narrative=narrative,
         analyst_id=analyst_id,
         override_log=override_log,
+        insights=insights_dict,
     )
 
     suffix    = doc_path.suffix          # .docx or .txt
