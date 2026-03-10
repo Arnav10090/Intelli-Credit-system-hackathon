@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pydantic\_internal\_known_annotated_metadata.py
-# hypothesis_version: 6.151.9
-
-['_', '__qualname__', 'allow_inf_nan', 'allowed_schemes', 'bool', 'bytes', 'date', 'datetime', 'default_host', 'default_path', 'default_port', 'dict', 'enum', 'float', 'frozenset', 'function-after', 'function-before', 'function-wrap', 'ge', 'generator', 'gt', 'host_required', 'int', 'lax-or-strict', 'le', 'list', 'lt', 'maxLength', 'max_length', 'metadata', 'minLength', 'min_length', 'mode', 'model', 'multi-host-url', 'multiple_of', 'pattern', 'predicate_failed', 'schema', 'set', 'str', 'strict', 'strip_whitespace', 'time', 'timedelta', 'to_lower', 'to_upper', 'tuple', 'type', 'typed-dict', 'union', 'union_mode', 'url', 'uuid']

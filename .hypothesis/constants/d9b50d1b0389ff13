@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\starlette\responses.py
-# hypothesis_version: 6.151.9
-
-[b'content-length', b'content-type', b'set-cookie', 200, 204, 304, 307, 1024, ',', '-', '/', ':', ":/%#?=@[]!$&'()*+,;", '; charset=', 'HEAD', '_headers', 'application/json', 'attachment', 'body', 'charset=', 'content-disposition', 'content-length', 'domain', 'etag', 'expires', 'extensions', 'headers', 'http.disconnect', 'http.response.body', 'http.response.start', 'httponly', 'last-modified', 'latin-1', 'lax', 'location', 'max-age', 'method', 'more_body', 'none', 'path', 'rb', 'samesite', 'secure', 'status', 'strict', 'text/', 'text/html', 'text/plain', 'type', 'utf-8', 'websocket', 'websocket.', '{}; filename="{}"']

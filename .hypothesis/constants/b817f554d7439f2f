@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\classes\graph.py
-# hypothesis_version: 6.151.9
-
-['Graph', '_NODE_OK', '_adj', '_node', 'adj', 'hashable', 'iter', 'name', 'nodes', 'weight']

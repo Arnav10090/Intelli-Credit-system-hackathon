@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\parsers\loose.py
-# hypothesis_version: 6.151.9
-
-[' %s="%s"', '"', '&', '&#34;', '&#38;', '&#39;', '&#60;', '&#62;', '&#x22;', '&#x26;', '&#x27;', '&#x2F;', '&#x2f;', '&#x3C;', '&#x3E;', '&#x3c;', '&#x3e;', '&amp;', '&apos;', '&gt;', '&lt;', '&quot;', "'", '/', '<', '>', 'rel', 'type', 'utf-8', 'xml']

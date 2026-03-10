@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\isotonic.py
-# hypothesis_version: 6.151.9
-
-[-1.0, 0.5, 1.0, 1.96, '1darray', 'IsotonicRegression', 'X', 'X_thresholds_', 'X_types', 'array-like', 'auto', 'boolean', 'both', 'check_increasing', 'clip', 'f_', 'increasing', 'isotonic_regression', 'linear', 'nan', 'out_of_bounds', 'raise', 'sample_weight', 'x', 'y', 'y_max', 'y_min', 'y_thresholds_']

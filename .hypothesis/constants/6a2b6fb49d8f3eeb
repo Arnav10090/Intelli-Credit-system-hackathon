@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\Downloads\Intelli-credit-system-hackathon\backend\scoring\five_cs_scorer.py
-# hypothesis_version: 6.151.9
-
-[0.0, 0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.8, 1.0, 1.1, 1.25, 1.3, 1.5, 1.75, 2.0, 3.0, 4.0, 5.0, 25.0, 26.0, 49.0, 51.0, 100, 'APPROVE', 'Capacity', 'Capital', 'Character', 'Collateral', 'Conditions', 'D', 'Decline', 'PARTIAL', 'REJECT', 'base_rate_pct', 'capacity', 'capital', 'character', 'collateral', 'conditions', 'contributions', 'counter_factual', 'de_ratio', 'decision', 'delta', 'dscr', 'ebitda_margin_trend', 'grade', 'gst_compliance', 'interest_premium_bps', 'knockout_flags', 'label', 'litigation', 'litigation_risk', 'management_quality', 'max', 'max_points', 'min', 'net_worth_trend', 'normalised_score', 'pct', 'pillar', 'pillar_scores', 'plant_utilization', 'points_awarded', 'promoter_equity_pct', 'recommended_rate_pct', 'risk_grade', 'risk_label', 'score', 'sector_outlook', 'security_cover', 'total_raw_score']

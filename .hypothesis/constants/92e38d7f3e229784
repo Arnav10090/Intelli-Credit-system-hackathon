@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\aiosqlite\__init__.py
-# hypothesis_version: 6.151.9
-
-['Amethyst Reese', 'Connection', 'Cursor', 'DatabaseError', 'Error', 'IntegrityError', 'NotSupportedError', 'OperationalError', 'ProgrammingError', 'Row', 'Warning', '__version__', 'connect', 'paramstyle', 'register_adapter', 'register_converter', 'sqlite_version', 'sqlite_version_info']

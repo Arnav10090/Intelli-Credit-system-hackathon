@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\fixes.py
-# hypothesis_version: 6.151.9
-
-['0.3.16', '1.10.999', '1.11.0', '1.12', '1.12.0', '1.22', '1.25.0', '1.8', '1.9.0', '2.2', '3', 'P', 'PyPy', 'architecture', 'atol', 'coo', 'copy', 'csr', 'data', 'dia_array', 'internal_api', 'legacy', 'linear', 'neoversen1', 'openblas', 'rtol', 'tol', 'version', 'wasm32', 'wasm64']

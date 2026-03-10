@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\multiclass.py
-# hypothesis_version: 6.151.9
-
-['-multioutput', 'SparseArray', 'SparseSeries', '__array__', 'binary', 'biu', 'bool', 'classes_', 'continuous', 'coo', 'csc', 'csr', 'dok', 'error', 'lil', 'multiclass', 'multilabel-indicator', 'multilabel-sequences', 'real floating', 'shape', 'signed integer', 'unknown', 'unsigned integer', 'y']

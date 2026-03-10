@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pydantic\errors.py
-# hypothesis_version: 6.151.9
-
-[".*'(.+?)'", 'PydanticErrorCodes', 'PydanticImportError', 'PydanticUserError', 'config-both', 'custom-json-schema', 'discriminator-alias', 'import-error', 'removed-kwargs', 'root-model-extra', 'typed-dict-version', 'undefined-annotation', 'validator-no-fields', 'validator-signature']

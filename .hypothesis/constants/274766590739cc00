@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\base.py
-# hypothesis_version: 6.151.9
-
-[700, '- ...\n', '...', 'DensityEstimator', 'X', '[^\\n]*\\n', '^(\\s*\\S){%d}', '__', '__sklearn_clone__', '__slots__', '_estimator_type', '_more_tags', '_n_features_out', '_sklearn_version', 'classifier', 'clusterer', 'csr', 'deprecated_original', 'diagram', 'display', 'ensure_2d', 'estimator', 'feature_names_in_', 'get_params', 'multioutput', 'n_features_in_', 'no_validation', 'non_deterministic', 'outlier_detector', 'partial_fit', 'powerpc', 'ppc', 'pre-0.18', 'predict', 'preserves_dtype', 'regressor', 'requires_y', 'self', 'sklearn.', 'text/html', 'text/plain', 'transform', 'y']

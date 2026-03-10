@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\http.py
-# hypothesis_version: 6.151.9
-
-[200, 304, ':', 'A-IM', 'Accept', 'Accept-encoding', 'Apr', 'Aug', 'Authorization', 'Basic %s', 'Dec', 'Feb', 'Fri', 'If-Modified-Since', 'If-None-Match', 'Jan', 'Jul', 'Jun', 'Mar', 'May', 'Mon', 'Nov', 'Oct', 'Referer', 'Sat', 'Sep', 'Sun', 'Thu', 'Tue', 'User-Agent', 'WWW-Authenticate', 'Wed', 'ascii', 'bozo', 'bozo_exception', 'code', 'content-encoding', 'debug_message', 'deflate', 'etag', 'feed', 'feed:', 'feed:http', 'ftp:', 'gzip', 'gzip, deflate', 'headers', 'href', 'http:', 'ignore', 'last-modified', 'modified', 'modified_parsed', 'realm="([^"]*)"', 'status', 'utf-8', 'version', 'www-authenticate']

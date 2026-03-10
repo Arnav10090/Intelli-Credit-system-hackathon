@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\calibration.py
-# hypothesis_version: 6.151.9
-
-[0.0, 1e-06, 1e-05, 1.0, 2.0, 100, '-', 'L-BFGS-B', 'Perfectly calibrated', '_xfail_checks', 'array-like', 'binary', 'boolean', 'classes_', 'clip', 'cv', 'cv_object', 'decision_function', 'ensemble', 'estimator', 'feature_names_in_', 'fit', 'ftol', 'gtol', 'isotonic', 'k:', 'label', 'left', 'linestyle', 'lower right', 'marker', 'method', 'n_bins', 'n_features_in_', 'n_jobs', 'n_splits', 'pos_label', 'predict_proba', 'prefit', 'quantile', 's', 'sample_weight', 'sigmoid', 'split', 'strategy', 'uniform', 'y_prob', 'y_true']

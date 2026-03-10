@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\pydantic_settings\main.py
-# hypothesis_version: 6.151.9
-
-['case_sensitive', 'cli_avoid_json', 'cli_enforce_required', 'cli_hide_none_type', 'cli_parse_args', 'cli_parse_none_str', 'cli_prefix', 'cli_prog_name', 'cli_settings_source', 'env_file', 'env_file_encoding', 'env_ignore_empty', 'env_nested_delimiter', 'env_parse_enums', 'env_parse_none_str', 'env_prefix', 'forbid', 'model_', 'secrets_dir', 'settings_']

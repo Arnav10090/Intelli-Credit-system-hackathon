@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\openai\types\beta\threads\run_create_params.py
-# hypothesis_version: 6.151.9
-
-['AdditionalMessage', 'RunCreateParamsBase', 'TruncationStrategy', 'assistant', 'auto', 'file_search', 'last_messages', 'user']

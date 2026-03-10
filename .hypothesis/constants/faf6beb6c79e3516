@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\pipeline.py
-# hypothesis_version: 6.151.9
-
-[', ...]', '-%d', 'FeatureUnion', 'Pipeline', '__', '_xfail_checks', 'boolean', 'cache', 'decision_function', 'drop', 'fit', 'fit_predict', 'fit_transform', 'inverse_transform', 'location', 'make_pipeline', 'make_union', 'memory', 'multioutput', 'one-to-one', 'pairwise', 'parallel', 'passthrough', 'predict', 'predict_log_proba', 'predict_proba', 'sample_weight', 'score', 'score_samples', 'serial', 'steps', 'transform', 'transformer_list', 'verbose']

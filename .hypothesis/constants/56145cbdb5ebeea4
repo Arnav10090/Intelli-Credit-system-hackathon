@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\openai\types\responses\response_tool_search_output_item_param_param.py
-# hypothesis_version: 6.151.9
-
-['client', 'completed', 'in_progress', 'incomplete', 'server', 'tool_search_output']

@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\discovery.py
-# hypothesis_version: 6.151.9
-
-['.', '._', 'BaseEstimator', 'Display', 'FeatureHasher', '_', '__abstractmethods__', 'classifier', 'cluster', 'conftest', 'estimator_checks', 'experimental', 'externals', 'feature_extraction', 'regressor', 'setup', 'sklearn.', 'tests', 'transformer']

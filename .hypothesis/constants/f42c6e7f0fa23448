@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\algorithms\simple_paths.py
-# hypothesis_version: 6.151.9
-
-['all_simple_paths', 'is_simple_path', 'multigraph', 'weight']

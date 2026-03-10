@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\drawing\layout.py
-# hypothesis_version: 6.151.9
-
-[0.0, 1e-06, 0.0001, 0.001, 0.01, 0.1, 0.35, 0.5, 1.0, 1.1, 2.0, 1000000.0, 500, 1000, 'G is not planar.', 'L-BFGS-B', 'SM', 'arf_layout', 'bfs_layout', 'bipartite_layout', 'circular_layout', 'd', 'f', 'horizontal', 'ignore', 'ij,i->ij', 'ij,ij,ijk->ik', 'ij,ij,ijk->jk', 'ijk,ij->ijk', 'ijk,ij->ik', 'kamada_kawai_layout', 'multipartite_layout', 'planar_layout', 'random_layout', 'rescale_layout', 'rescale_layout_dict', 'shell_layout', 'spectral_layout', 'spiral_layout', 'spring_layout', 'subset', 'vertical', 'weight']

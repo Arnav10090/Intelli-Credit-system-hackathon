@@ -52,3 +52,8 @@ ml/models/*.joblib
 .pytest_cache/
 .coverage
 htmlcov/
+
+pitch_deck_outline.md
+QUICK_START.md
+SUBMISSION_CHECKLIST.md
+

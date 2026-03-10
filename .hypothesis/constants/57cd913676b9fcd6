@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\datetimes\iso8601.py
-# hypothesis_version: 6.151.9
-
-[100, '(?P<century>\\d\\d$)', '(?P<day>[0123]\\d)', '(?P<month>[01]\\d)', '(?P<year>\\d\\d)', '(?P<year>\\d{4})', '+', '-', '--', '---DD', '--MM', '--MM-?DD', '-OOO', '-YY', '-YY-?MM', 'CC', 'DD', 'MM', 'OOO', 'YY', 'YY-?MM-?DD', 'YY-?OOO', 'YYYY', 'YYYY-0MM?-?DD', 'YYYY-?MM-?DD', 'YYYY-?OOO', 'YYYY-MM', 'Z', 'century', 'day', 'hour', 'minute', 'month', 'ordinal', 'second', 'tz', 'tzhour', 'tzmin', 'year']

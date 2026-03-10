@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\datetimes\rfc822.py
-# hypothesis_version: 6.151.9
-
-[1900, 2000, '+', '-', '0', '0000', '00:00:00', ':', 'a', 'adt', 'apr', 'ast', 'at', 'aug', 'cdt', 'cst', 'ct', 'dec', 'edt', 'est', 'et', 'etc/', 'feb', 'fri', 'gmt', 'jan', 'jul', 'jun', 'm', 'mar', 'may', 'mdt', 'mest', 'met', 'mon', 'mst', 'mt', 'n', 'nov', 'oct', 'pdt', 'pst', 'pt', 'sat', 'sep', 'sun', 'thu', 'tue', 'ut', 'wed', 'y', 'z']

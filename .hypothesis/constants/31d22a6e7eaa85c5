@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\Downloads\Intelli-credit-system-hackathon\backend\database.py
-# hypothesis_version: 6.151.9
-
-[100, 255, 500, 1000, 'AuditLog', 'CASE_CREATED', 'Case', 'CaseInsight', 'DOCUMENT_UPLOADED', 'Document', 'RECON_FLAG_RAISED', 'ReconFlag', 'ResearchResult', 'ScoringResult', 'all, delete-orphan', 'audit_logs', 'case', 'case_id', 'case_insights', 'cases', 'cases.id', 'check_same_thread', 'company', 'doc_id', 'doc_type', 'documents', 'draft', 'filename', 'flag_id', 'hash', 'insights', 'metric_value', 'other', 'recon_flags', 'research_results', 'scoring_results', 'system', 'uploaded']

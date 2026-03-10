@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\_indexing.py
-# hypothesis_version: 6.151.9
-
-['O', 'S', 'U', 'array-like', 'b', 'bool', 'boolean', 'dtype', 'i', 'ignore', 'iloc', 'int', 'integral', 'left', 'mergesort', 'n_samples', 'polars', 'random_state', 'replace', 'shape', 'sparse matrix', 'str', 'stratify', 'u']

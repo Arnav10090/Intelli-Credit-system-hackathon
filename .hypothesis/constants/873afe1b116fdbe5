@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\aiosqlite\core.py
-# hypothesis_version: 6.151.9
-
-[0.01, 0.25, 'Connection', 'Connection closed', 'Cursor', 'DEFERRED', 'EXCLUSIVE', 'IMMEDIATE', 'aiosqlite', 'connect', 'executing %s', 'main', 'no active connection', 'utf-8']

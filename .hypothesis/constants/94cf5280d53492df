@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\networkx\readwrite\json_graph\node_link.py
-# hypothesis_version: 6.151.9
-
-['directed', 'graph', 'id', 'key', 'link', 'links', 'multigraph', 'name', 'node_link_data', 'node_link_graph', 'nodes', 'source', 'target']

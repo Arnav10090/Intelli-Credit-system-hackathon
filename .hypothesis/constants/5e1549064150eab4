@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\sklearn\utils\_array_api.py
-# hypothesis_version: 6.151.9
-
-[0.0, 1.0, 100, '1.21', 'C', '__dlpack__', 'arange', 'array_api_dispatch', 'array_api_strict', 'bool', 'complex floating', 'complex128', 'complex64', 'cpu', 'cuda', 'cupy', 'cupy.array_api', 'device', 'dtype', 'empty', 'empty_like', 'eye', 'float16', 'float32', 'float64', 'full', 'full_like', 'int16', 'int32', 'int64', 'int8', 'integral', 'linspace', 'mps', 'numeric', 'numpy', 'ones', 'ones_like', 'real floating', 'signed integer', 'torch', 'uint16', 'uint32', 'uint64', 'uint8', 'unsafe', 'unsigned integer', 'zeros', 'zeros_like']

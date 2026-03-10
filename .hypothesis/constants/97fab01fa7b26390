@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\scipy\sparse\dok.py
-# hypothesis_version: 6.151.9
-
-['IndexMixin', '_dok', 'check_shape', 'dok', 'dok_matrix', 'getdtype', 'isdense', 'isintlike', 'isscalarlike', 'isshape', 'isspmatrix_dok', 'itertools', 'sparse', 'spmatrix', 'upcast', 'upcast_scalar']

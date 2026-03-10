@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\openai\types\responses\response_function_shell_tool_call_output.py
-# hypothesis_version: 6.151.9
-
-['Output', 'OutputOutcome', 'OutputOutcomeExit', 'OutputOutcomeTimeout', 'completed', 'exit', 'in_progress', 'incomplete', 'shell_call_output', 'timeout', 'type']

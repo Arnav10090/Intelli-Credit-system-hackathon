@@ -1,4 +1,0 @@
-# file: C:\Users\Asus\AppData\Roaming\Python\Python312\site-packages\feedparser\encodings.py
-# hypothesis_version: 6.151.9
-
-[b'\x00\x00\x00<', b'\x00<\x00?', b'<\x00\x00\x00', b'<\x00?\x00', b'Lo\xa7\x94', b'^<\\?.*encoding=[\\\'"](.*?)[\\\'"].*\\?>', '\x00\x00', '"\'', '+xml', ';', '=', '^<\\?xml[^>]*?>', 'application/', 'application/xml', 'application/xml-dtd', 'bozo', 'bozo_exception', 'charset', 'content-type', 'cp037', 'csucs4', 'csunicode', 'encoding', 'gb18030', 'gb2312', 'iso-10646-ucs-2', 'iso-10646-ucs-4', 'iso-8859-1', 'iso-8859-2', 'text/', 'text/xml', 'u16', 'u32', 'ucs-2', 'ucs-4', 'us-ascii', 'utf-16', 'utf-16be', 'utf-16le', 'utf-32', 'utf-32be', 'utf-32le', 'utf-8', 'utf16', 'utf32', 'utf_16', 'utf_32', 'windows-1252']
