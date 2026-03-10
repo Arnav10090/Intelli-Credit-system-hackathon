@@ -260,4 +260,4 @@ MIT License — see LICENSE file for details.
 
 ## Contributors
 
-Built for [Hackathon Name] by [Team Name].
+Built for National AI/ML Hackathon by Vivriti Capital by Team AI Apex.
