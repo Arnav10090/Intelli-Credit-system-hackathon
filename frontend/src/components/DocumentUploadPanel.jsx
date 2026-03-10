@@ -77,16 +77,16 @@ export default function DocumentUploadPanel({ caseId }) {
                 textTransform: 'uppercase',
                 letterSpacing: 0.8,
             }}>
-                Step 1 — Document Ingestion (Upload Annual Report PDF)
+                Upload Annual Report PDF — or use demo data below
             </h3>
 
             {/* Dropzone */}
             <div
                 {...getRootProps()}
                 style={{
-                    border: `2px dashed ${isDragActive ? 'var(--blue-bright)' : 'var(--border)'}`,
+                    border: `2px dashed ${isDragActive ? 'var(--blue-bright)' : 'var(--primary)'}`,
                     borderRadius: 'var(--radius)',
-                    padding: 24,
+                    padding: 14,
                     textAlign: 'center',
                     cursor: uploading ? 'not-allowed' : 'pointer',
                     background: isDragActive ? 'var(--blue-dim)' : 'var(--surface-alt)',
@@ -110,8 +110,8 @@ export default function DocumentUploadPanel({ caseId }) {
                     </div>
                 ) : (
                     <div style={{ color: 'var(--text-muted)' }}>
-                        <div style={{ fontSize: 32, marginBottom: 8 }}>📤</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                        <div style={{ fontSize: 22, marginBottom: 4 }}>📤</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>
                             Drag & drop a file here, or click to select
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>

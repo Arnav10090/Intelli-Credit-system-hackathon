@@ -9,9 +9,6 @@ Architecture:
   3. Python calls `node builder.js payload.json output.docx`
   4. Falls back to a plain .txt if Node/docx unavailable
 
-This approach avoids ALL f-string / brace-escaping issues — the JS script
-is a plain string constant, and data is passed via a JSON file on disk.
-
 CAM Structure (10 sections):
   1. Cover Page          — case metadata
   2. Executive Summary   — LLM narrative
@@ -41,15 +38,31 @@ logger = logging.getLogger(__name__)
 from config import OUTPUT_DIR
 
 
-# ── Node.js builder script (pure JS constant — no f-string) ──────────────────
-# Data is injected via a JSON file read at runtime, not embedded in the script.
+# ── Em-dash / encoding sanitizer (Python-level, runs before Node) ─────────────
+def _sanitize(text) -> str:
+    """
+    Normalize em-dashes and en-dashes that may arrive as Unicode codepoints
+    or as mojibake sequences (UTF-8 bytes mis-decoded as latin-1).
+    Applied to every free-text string before it is written to the JSON payload.
+    """
+    if not isinstance(text, str):
+        return text
+    return (text
+        .replace("\u2014", " - ")       # true em-dash
+        .replace("\u2013", " - ")       # en-dash
+        .replace("\u2012", " - ")       # figure dash
+        .replace("\u2015", " - ")       # horizontal bar
+        .replace("\xe2\x80\x94", " - ") # UTF-8 em-dash mis-decoded as latin-1
+        .replace("\u00e2\u20ac\u201d", " - ")  # double-mojibake variant
+    )
 
+
+# ── Node.js builder script (pure JS constant — no f-string) ──────────────────
 _NODE_SCRIPT = r"""
 'use strict';
 const fs   = require('fs');
 const path = require('path');
 
-// Load docx from global npm
 let docxLib;
 try {
   docxLib = require('docx');
@@ -64,12 +77,10 @@ const {
   WidthType, ShadingType, VerticalAlign, PageNumber, PageBreak,
 } = docxLib;
 
-// Args: node builder.js <payload.json> <output.docx>
 const payloadPath = process.argv[2];
 const outPath     = process.argv[3];
 const data = JSON.parse(fs.readFileSync(payloadPath, 'utf8'));
 
-// ── Style constants ──────────────────────────────────────────────────────────
 const NAVY  = '1F3864', BLUE  = '2E75B6', LBLUE = 'D6E4F0';
 const AMBER = 'C65911', RED   = 'C00000', GREEN = '375623';
 const LGREY = 'F2F2F2', WHITE = 'FFFFFF', BLACK = '000000';
@@ -79,15 +90,13 @@ const BORDERS   = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER };
 const NO_BORDER = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
 const NO_BORDERS= { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
 function sanitizeDashes(text) {
   if (typeof text !== 'string') return text;
   return text
-    .replace(/\u2014/g, '-')  // em-dash
-    .replace(/\u2013/g, '-')  // en-dash
-    .replace(/\u2012/g, '-')  // figure dash
-    .replace(/\u2015/g, '-'); // horizontal bar
+    .replace(/\u2014/g, '-')
+    .replace(/\u2013/g, '-')
+    .replace(/\u2012/g, '-')
+    .replace(/\u2015/g, '-');
 }
 
 function cell(text, opts) {
@@ -172,8 +181,6 @@ function fmtCr(v)  { return '\u20b9' + Number(v || 0).toFixed(2) + ' Cr'; }
 function fmtL(v)   { return '\u20b9' + Number(v || 0).toFixed(0) + 'L'; }
 function fmtPct(v) { return Number(v || 0).toFixed(1) + '%'; }
 function fmtX(v)   { return Number(v || 0).toFixed(2) + 'x'; }
-
-// ── Sections ─────────────────────────────────────────────────────────────────
 
 function coverPage() {
   const m = data.meta, sc = data.scorecard, d = sc.decision;
@@ -384,10 +391,8 @@ function financialSummary() {
   }
 
   const wcColW = wcRows.length > 0 ? Math.floor((9360 - 2800) / wcRows.length) : 2186;
-  const wcColWidths = [2800].concat(wcRows.map(function() { return wcColW; }));
 
   function makeWCRow(label, key, fmt, threshold, above) {
-    // above=true means red when above threshold; above=false means red when below
     return new TableRow({ children: [
       cell(label, { w: 2800 }),
     ].concat(wcRows.map(function(r) {
@@ -399,6 +404,8 @@ function financialSummary() {
       });
     }))});
   }
+
+  const wcColWidths = [2800].concat(wcRows.map(function() { return wcColW; }));
 
   return [
     h1('4. Financial Summary'),
@@ -440,7 +447,7 @@ function financialSummary() {
         makeWCRow('Current Ratio',         'current_ratio',        fmtX,    1.0,  false),
         makeWCRow('Debtor Days (DSO)',      'debtor_days',          function(v){ return v.toFixed(0)+'d'; }, 120, true),
         makeWCRow('Creditor Days (DPO)',    'creditor_days',        function(v){ return v.toFixed(0)+'d'; }, 180, true),
-        makeWCRow('Inventory Days',        'inventory_days',       function(v){ return v.toFixed(0)+'d'; }, 999, false),
+        makeWCRow('Inventory Days', 'inventory_days', function(v){ return v.toFixed(0)+'d'; }, 180, true),
         makeWCRow('Cash Conversion Cycle', 'cash_conversion_cycle',function(v){ return v.toFixed(0)+'d'; }, 120, true),
         makeWCRow('Interest Coverage',     'interest_coverage',    fmtX,    1.5,  false),
       ]
@@ -572,7 +579,7 @@ function scorecardSection() {
   });
 
   return [
-    h1('7. Five Cs Scorecard'),
+    h1('8. Five Cs Scorecard'),
     new Table({
       width: { size: 9360, type: WidthType.DXA },
       columnWidths: [2000, 1500, 1000, 4860],
@@ -600,19 +607,21 @@ function scorecardSection() {
 
 function insightsSection() {
   const ins = data.insights;
-  if (!ins || !ins.has_adjustments) {
-    return [];  // No insights to display
+  if (!ins || (!ins.notes && !ins.has_adjustments)) {
+    return [];
   }
   
   const children = [
-    h1('7.5 Field Observations'),
-    h2('Analyst Notes'),
-    para(ins.notes, { size: 20, spaceAfter: 240 }),
-    spacer(),
-    h2('Score Adjustments from Field Intelligence'),
+    h1('7. Analyst Field Notes'),
+    h2('Observations'),
+    para(ins.notes || 'No field observations recorded.', { size: 20, spaceAfter: 240 }),
   ];
+
+  if (ins.has_adjustments) {
+    children.push(spacer());
+    children.push(h2('Score Adjustments from Field Intelligence'));
+  };
   
-  // Build adjustments table
   const rows = [new TableRow({ children: [
     hdrCell('Pillar', 2400, NAVY),
     hdrCell('Delta', 1200, NAVY),
@@ -623,42 +632,28 @@ function insightsSection() {
   for (const pillar in byPillar) {
     const adjustments = byPillar[pillar];
     const pillarTotal = adjustments.reduce(function(sum, adj) { return sum + adj.delta; }, 0);
-    
-    // First row for pillar with total
     rows.push(new TableRow({ children: [
       cell(pillar, { bold: true, w: 2400 }),
       cell((pillarTotal > 0 ? '+' : '') + pillarTotal + ' pts', { 
-        bold: true, 
-        w: 1200, 
-        color: pillarTotal < 0 ? RED : GREEN,
-        align: AlignmentType.CENTER 
+        bold: true, w: 1200, color: pillarTotal < 0 ? RED : GREEN, align: AlignmentType.CENTER 
       }),
       cell('', { w: 5760 }),
     ]}));
-    
-    // Detail rows for each adjustment
     adjustments.forEach(function(adj) {
       rows.push(new TableRow({ children: [
         cell('', { w: 2400 }),
         cell((adj.delta > 0 ? '+' : '') + adj.delta + ' pts', { 
-          w: 1200, 
-          color: adj.delta < 0 ? RED : GREEN,
-          align: AlignmentType.CENTER 
+          w: 1200, color: adj.delta < 0 ? RED : GREEN, align: AlignmentType.CENTER 
         }),
         cell(adj.reason, { w: 5760 }),
       ]}));
     });
   }
   
-  // Net impact row
   rows.push(new TableRow({ children: [
     cell('Net Score Impact', { bold: true, w: 2400, bg: LGREY }),
     cell((ins.total_delta > 0 ? '+' : '') + ins.total_delta + ' pts', { 
-      bold: true, 
-      w: 1200, 
-      bg: LGREY,
-      color: ins.total_delta < 0 ? RED : GREEN,
-      align: AlignmentType.CENTER 
+      bold: true, w: 1200, bg: LGREY, color: ins.total_delta < 0 ? RED : GREEN, align: AlignmentType.CENTER 
     }),
     cell('Applied to final scorecard', { w: 5760, bg: LGREY, italic: true }),
   ]}));
@@ -668,18 +663,16 @@ function insightsSection() {
     columnWidths: [2400, 1200, 5760],
     rows: rows
   }));
-  
   children.push(spacer());
   children.push(para('Created by: ' + ins.created_by + ' on ' + ins.created_at, 
     { size: 18, color: '666666', italic: true }));
-  
   return children;
 }
 
 function riskSection() {
   const lines = (data.narrative.risk_factors || '').split('\n').filter(function(l){ return l.trim(); });
   return [
-    h1('8. Risk Factors & Mitigants'),
+    h1('9. Risk Factors & Mitigants'),
   ].concat(lines.map(function(line) {
     return para(line, { size: 20, spaceAfter: 160 });
   }));
@@ -688,7 +681,7 @@ function riskSection() {
 function recommendationSection() {
   const sc = data.scorecard;
   return [
-    h1('9. Recommendation & Audit Trail'),
+    h1('10. Recommendation & Audit Trail'),
     new Table({
       width: { size: 9360, type: WidthType.DXA },
       columnWidths: [9360],
@@ -719,8 +712,8 @@ function recommendationSection() {
         ['Document generated',  data.meta.generated_at],
         ['Prepared by',         data.meta.analyst_id],
         ['Case ID',             data.meta.case_id],
-        ['Narrative source',    data.meta.model_used === 'claude'
-          ? 'AI-assisted (Claude Sonnet)' : 'Deterministic template'],
+        ['Narrative source',    data.meta.model_used === 'template_fallback'
+          ? 'Deterministic template' : 'AI-assisted (' + data.meta.model_used + ')'],
         ['Score',               sc.score + '/100  (raw: ' + sc.raw_score + '/200)'],
         ['Decision',            sc.decision],
         ['Overrides',           (data.override_log || []).length > 0
@@ -741,8 +734,6 @@ function recommendationSection() {
     ),
   ];
 }
-
-// ── Assemble & write ─────────────────────────────────────────────────────────
 
 const allChildren = [].concat(
   coverPage(),
@@ -849,35 +840,31 @@ def build_cam_docx(
         logger.info("CAM DOCX built: %s (%.0f KB)", out_path, out_path.stat().st_size / 1024)
         return out_path
     except Exception as e:
-        logger.error("DOCX build failed (%s) — falling back to .txt", e)
+        logger.error("DOCX build failed: %s", e)
+        print(f"\n\n=== CAM BUILD ERROR ===\n{e}\n=== END ERROR ===\n\n")
         return _write_txt_fallback(payload, case_id)
 
 
 # ── Payload assembly ──────────────────────────────────────────────────────────
 
 def _transform_wc_rows(yearly_metrics: list) -> list:
-    """
-    Transform working capital yearly metrics to the format expected by the CAM template.
-    Handles zero/missing values by displaying them as-is (the template will handle formatting).
-    """
     if not yearly_metrics:
         return []
-    
     transformed = []
     for metric in yearly_metrics:
         transformed.append({
-            "year": metric.get("year", ""),
-            "dscr": metric.get("dscr", 0),
-            "de_ratio": metric.get("de_ratio", 0),
-            "current_ratio": metric.get("current_ratio", 0),
-            "debtor_days": metric.get("debtor_days", 0),
-            "creditor_days": metric.get("creditor_days", 0),
-            "inventory_days": metric.get("inventory_days", 0),
-            "cash_conversion_cycle": metric.get("cash_conversion_cycle", 0),
-            "interest_coverage": metric.get("interest_coverage", 0),
+            "year":                 metric.get("year", ""),
+            "dscr":                 metric.get("dscr", 0),
+            "de_ratio":             metric.get("de_ratio", 0),
+            "current_ratio":        metric.get("current_ratio", 0),
+            "debtor_days":          metric.get("debtor_days", 0),
+            "creditor_days":        metric.get("creditor_days", 0),
+            "inventory_days":       metric.get("inventory_days", 0),
+            "cash_conversion_cycle":metric.get("cash_conversion_cycle", 0),
+            "interest_coverage":    metric.get("interest_coverage", 0),
         })
-    
     return transformed
+
 
 def _build_payload(
     case_id, fin, sc, ls, wc, rp, gst,
@@ -898,7 +885,7 @@ def _build_payload(
             val = d.get(k, [])
             return round(float(val[i]), 1) if isinstance(val, list) and i < len(val) else 0.0
         return {
-            "year": years[i] if i < len(years) else f"Y{i+1}",
+            "year":      years[i] if i < len(years) else f"Y{i+1}",
             "revenue":   v(pnl, "revenue_from_operations"),
             "ebitda":    v(pnl, "ebitda"),
             "ebitda_pct":v(pnl, "ebitda_margin_pct"),
@@ -930,7 +917,8 @@ def _build_payload(
             "cc_cr":          lr.get("wc_cc_requested_cr", 0),
             "total_cr":       lr.get("total_requested_cr", 0),
             "tenor_yr":       lr.get("tenor_term_loan_yr", 7),
-            "purpose":        lr.get("purpose", ""),
+            # ── sanitized free-text fields ──────────────────────────────────
+            "purpose":        _sanitize(lr.get("purpose", "")),
             "recommended_cr": ls.get("recommendation", {}).get("recommended_cr", 0),
             "rec_tl_cr":      ls.get("recommendation", {}).get("term_loan_cr", 0),
             "rec_cc_cr":      ls.get("recommendation", {}).get("cc_limit_cr", 0),
@@ -942,11 +930,16 @@ def _build_payload(
             "dscr_limit_cr":  ls.get("limits", {}).get("dscr_based_cr", 0),
             "coll_limit_cr":  ls.get("limits", {}).get("collateral_based_cr", 0),
         },
-        "security":  lr.get("security_proposed", []),
+        # ── sanitize security location strings ─────────────────────────────
+        "security": [
+            {**s, "location": _sanitize(s.get("location", ""))}
+            for s in lr.get("security_proposed", [])
+        ],
+        # ── sanitize promoter designation strings ───────────────────────────
         "promoters": [
             {
                 "name":        p.get("name", ""),
-                "designation": p.get("designation", ""),
+                "designation": _sanitize(p.get("designation", "")),
                 "holding_pct": p.get("shareholding_pct", 0),
                 "pledged_pct": p.get("shares_pledged_pct", 0),
             }
@@ -958,8 +951,8 @@ def _build_payload(
             "public_pct":   sp.get("public_pct", 0),
             "other_pct":    sp.get("other_pct", 0),
         },
-        "fin_rows":   [row(i) for i in range(len(years))],
-        "wc_rows":    _transform_wc_rows(wc.get("yearly_metrics", [])),
+        "fin_rows":  [row(i) for i in range(len(years))],
+        "wc_rows":   _transform_wc_rows(wc.get("yearly_metrics", [])),
         "scorecard": {
             "grade":     sc.get("risk_grade", ""),
             "label":     sc.get("risk_label", ""),
@@ -976,8 +969,8 @@ def _build_payload(
             ),
             "rate_pct":  sc.get("recommended_rate_pct", 0),
         },
-        "gst_flags":   gst.get("flags", [])[:6],
-        "research":    sorted(
+        "gst_flags":  gst.get("flags", [])[:6],
+        "research":   sorted(
             [r for r in research_items if r.get("risk_score_delta", 0) != 0],
             key=lambda x: x.get("risk_score_delta", 0)
         )[:8],
@@ -995,40 +988,32 @@ def _build_payload(
             "risk_factors":       narrative.risk_factors,
             "recommendation":     narrative.recommendation,
         },
-        "insights": _format_insights(insights) if insights else None,
+        "insights":     _format_insights(insights) if insights else None,
         "override_log": override_log,
     }
 
 
 def _format_insights(insights: dict) -> dict:
-    """
-    Format insights data for CAM document inclusion.
-    Groups adjustments by pillar and formats for display.
-    """
     if not insights:
         return None
-    
     adjustments = insights.get("adjustments", [])
-    
-    # Group adjustments by pillar
     by_pillar = {}
     for adj in adjustments:
         pillar = adj.get("pillar", "Unknown")
         if pillar not in by_pillar:
             by_pillar[pillar] = []
         by_pillar[pillar].append({
-            "delta": adj.get("delta", 0),
-            "reason": adj.get("reason", ""),
+            "delta":    adj.get("delta", 0),
+            "reason":   adj.get("reason", ""),
             "keywords": adj.get("keywords_matched", []),
         })
-    
     return {
-        "notes": insights.get("notes", ""),
-        "total_delta": insights.get("total_delta", 0),
-        "created_at": insights.get("created_at", ""),
-        "created_by": insights.get("created_by", ""),
+        "notes":                 insights.get("notes", ""),
+        "total_delta":           insights.get("total_delta", 0),
+        "created_at":            insights.get("created_at", ""),
+        "created_by":            insights.get("created_by", ""),
         "adjustments_by_pillar": by_pillar,
-        "has_adjustments": len(adjustments) > 0,
+        "has_adjustments":       len(adjustments) > 0,
     }
 
 
@@ -1078,27 +1063,18 @@ def _write_txt_fallback(payload: dict, case_id: str) -> Path:
             f"  {r['year']}: Rev={r['revenue']:.0f}L  EBITDA={r['ebitda']:.0f}L"
             f"  PAT={r['pat']:.0f}L  Debt={r['total_debt']:.0f}L  TNW={r['tnw']:.0f}L"
         )
-    
-    # Add Field Observations section if insights exist
     if ins and ins.get("has_adjustments"):
-        lines += [
-            "", "FIELD OBSERVATIONS", "-" * 40,
-            ins["notes"], "",
-            "Score Adjustments from Field Intelligence:", ""
-        ]
-        for pillar, adjustments in ins["adjustments_by_pillar"].items():
-            pillar_total = sum(adj["delta"] for adj in adjustments)
-            lines.append(f"  {pillar}: {pillar_total:+d} pts")
-            for adj in adjustments:
-                lines.append(f"    - {adj['reason']}")
-        lines.append(f"\nNet score impact: {ins['total_delta']:+d} pts")
-        lines.append("")
-    
+        lines += ["", "FIELD OBSERVATIONS", "-" * 40, ins["notes"], "",
+                  "Score Adjustments:", ""]
+        for pillar, adjs in ins["adjustments_by_pillar"].items():
+            total = sum(a["delta"] for a in adjs)
+            lines.append(f"  {pillar}: {total:+d} pts")
+            for a in adjs:
+                lines.append(f"    - {a['reason']}")
+        lines.append(f"\nNet: {ins['total_delta']:+d} pts\n")
     lines += [
-        "", "RECOMMENDATION", "-" * 40,
-        nav["recommendation"],
-        "", "RISK FACTORS", "-" * 40,
-        nav["risk_factors"],
+        "", "RECOMMENDATION", "-" * 40, nav["recommendation"],
+        "", "RISK FACTORS", "-" * 40, nav["risk_factors"],
         "", f"Recommended: Rs{ln['recommended_cr']:.2f} Cr @ {ln['rate_pct']:.2f}% p.a.",
     ]
     txt_path.write_text("\n".join(lines), encoding="utf-8")

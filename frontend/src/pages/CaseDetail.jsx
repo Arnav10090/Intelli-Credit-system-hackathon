@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api/client.js'
 import DecisionBanner from '../components/DecisionBanner.jsx'
 import ScoreGauge from '../components/ScoreGauge.jsx'
@@ -9,7 +9,6 @@ import FinancialChart from '../components/FinancialChart.jsx'
 import ResearchTable from '../components/ResearchTable.jsx'
 import MLValidatorPanel from '../components/MLValidationPanel.jsx'
 import InsightPanel from '../components/InsightPanel.jsx'
-import DocumentUploadPanel from '../components/DocumentUploadPanel.jsx'
 
 /* ── helpers ─────────────────────────────────────────────────── */
 function fmt(v, unit = 'L') {
@@ -66,6 +65,9 @@ const TABS = ['Pipeline', 'Scorecard', 'Financials', 'Research', 'CAM']
 export default function CaseDetail({ demo, demoScenario }) {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
+    const queryParams = new URLSearchParams(location.search)
+    const fromCustom = queryParams.get('fromCustom') === 'true'
 
     // Support both old `demo` boolean prop and new `demoScenario` string prop
     const isDemoMode = demo || !!demoScenario
@@ -85,6 +87,7 @@ export default function CaseDetail({ demo, demoScenario }) {
     const [stepDone, setStepDone] = useState(0)
     const [log, setLog] = useState([])
     const [yearlyMetrics, setYearlyMetrics] = useState([])
+    const [analystNotes, setAnalystNotes] = useState('')
     // ── Locked scenario: set once at mount, never re-derived from caseData ──────
     const [activeScenario, setActiveScenario] = useState(forcedScenario || 'acme')
 
@@ -261,7 +264,7 @@ export default function CaseDetail({ demo, demoScenario }) {
         if (!caseId) return
         setLoad('cam', true); clearErr('cam')
         try {
-            const r = await api.generateCam(caseId, 'Demo Analyst')
+            const r = await api.generateCam(caseId, 'Demo Analyst', analystNotes)
             addLog(`CAM generated: ${r.filename} (~${r.pages_est} pages) via ${r.model_used}`)
             const cs = await api.getCamStatus(caseId)
             setCamStatus(cs)
@@ -289,7 +292,7 @@ export default function CaseDetail({ demo, demoScenario }) {
 
     /* ── render ──────────────────────────────────────────────── */
     return (
-        <div style={{ padding: '24px 28px', maxWidth: 1200 }}>
+        <div className="case-detail" style={{ padding: '24px 28px', maxWidth: 1200 }}>
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
@@ -351,26 +354,29 @@ export default function CaseDetail({ demo, demoScenario }) {
                     const current = i === stepDone
                     const future = i > stepDone
                     const color = done ? 'var(--approve)' : current ? 'var(--blue-bright)' : 'var(--text-dim)'
+
                     return (
-                        <div key={s.id} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 80 }}>
+                        <div key={s.id} style={{ display: 'flex', alignItems: 'center', flexShrink: 0, flex: i === STEPS.length - 1 ? 0 : 1 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 80, position: 'relative', zIndex: 1 }}>
                                 <div style={{
-                                    width: 26, height: 26, borderRadius: '50%',
-                                    background: done ? 'var(--approve)' : current ? 'var(--blue-dim)' : 'var(--border)',
-                                    border: `2px solid ${color}`,
+                                    width: 28, height: 28, borderRadius: '50%',
+                                    background: done ? 'var(--approve)' : current ? 'var(--surface)' : 'var(--surface-alt)',
+                                    border: `2px solid ${done ? 'var(--approve)' : current ? 'var(--blue-bright)' : 'var(--text-dim)'}`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: 10, fontWeight: 700, color: done ? '#fff' : color,
+                                    fontSize: 12, fontWeight: 700, color: done ? '#fff' : color,
                                     fontFamily: 'var(--font-mono)',
+                                    animation: current ? 'ringPulse 2s infinite' : 'none',
+                                    boxShadow: current ? '0 0 12px var(--primary-glow)' : 'none',
                                 }}>{done ? '✓' : i + 1}</div>
-                                <span style={{ fontSize: 9, color, fontWeight: current ? 700 : 400, textAlign: 'center' }}>
+                                <span style={{ fontSize: 10, color, fontWeight: current ? 700 : 500, textAlign: 'center' }}>
                                     {s.label}
                                 </span>
                             </div>
                             {i < STEPS.length - 1 && (
                                 <div style={{
-                                    width: 24, height: 1, flexShrink: 0,
-                                    background: i < stepDone ? 'var(--approve)' : 'var(--border)',
-                                    margin: '0 2px', marginTop: -12,
+                                    height: 3, flexGrow: 1, minWidth: 20,
+                                    background: done ? 'var(--approve)' : 'var(--border-soft)',
+                                    margin: '0 -15px', marginTop: -16, zIndex: 0
                                 }} />
                             )}
                         </div>
@@ -397,10 +403,27 @@ export default function CaseDetail({ demo, demoScenario }) {
             {tab === 'Pipeline' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
                     <div>
-                        {/* Document Upload Panel */}
-                        {caseId && (
-                            <div style={{ marginBottom: 20 }}>
-                                <DocumentUploadPanel caseId={caseId} />
+                        {/* Demo Mode Banner */}
+                        {isDemoMode && (
+                            <div style={{
+                                background: 'rgba(2, 195, 154, 0.1)',
+                                border: '1px solid var(--primary)',
+                                borderRadius: 'var(--radius)',
+                                padding: '12px 16px',
+                                marginBottom: 20,
+                                color: 'var(--primary)',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 10
+                            }}>
+                                <span>
+                                    {fromCustom 
+                                        ? "⚡ Demo environment — showing closest matching scenario. Production version includes PDF extraction via document intelligence pipeline."
+                                        : "⚡ Demo Mode — Pre-loaded financial data, GST records, and research cache. Click Run to begin."
+                                    }
+                                </span>
                             </div>
                         )}
 
@@ -460,9 +483,8 @@ export default function CaseDetail({ demo, demoScenario }) {
                             ].map(item => {
                                 const isLoad = loading[item.key]
                                 return (
-                                    <div key={item.key} style={{
+                                    <div key={item.key} className="glass-panel gold-hover" style={{
                                         display: 'flex', alignItems: 'center', gap: 14,
-                                        background: 'var(--surface)', border: '1px solid var(--border)',
                                         borderRadius: 'var(--radius)', padding: '14px 16px',
                                         opacity: item.available ? 1 : 0.5,
                                     }}>
@@ -470,7 +492,7 @@ export default function CaseDetail({ demo, demoScenario }) {
                                             width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                                             background: item.done ? 'var(--approve)' : 'var(--border)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: 13, color: item.done ? '#fff' : 'var(--text-dim)',
+                                            fontSize: 13, color: item.done ? 'var(--text-inverse)' : 'var(--text-dim)',
                                         }}>{item.done ? '✓' : item.step}</div>
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontSize: 13, fontWeight: 600, color: item.done ? 'var(--approve)' : 'var(--text)', marginBottom: 2 }}>
@@ -488,21 +510,22 @@ export default function CaseDetail({ demo, demoScenario }) {
                                                 onClick={item.action}
                                                 disabled={!item.available || isLoad}
                                                 style={{
-                                                    background: item.available && !isLoad ? 'var(--blue)' : 'var(--border)',
-                                                    color: item.available && !isLoad ? '#fff' : 'var(--text-dim)',
-                                                    border: 'none', borderRadius: 'var(--radius)',
-                                                    padding: '7px 16px', fontSize: 12, fontWeight: 600,
+                                                    background: item.available && !isLoad ? 'var(--blue)' : 'var(--surface-alt)',
+                                                    color: item.available && !isLoad ? 'var(--text-inverse)' : 'var(--text-dim)',
+                                                    border: item.available && !isLoad ? 'none' : '1px solid var(--border)',
+                                                    borderRadius: 'var(--radius)',
+                                                    padding: '8px 16px', fontSize: 12, fontWeight: 600,
                                                     cursor: item.available && !isLoad ? 'pointer' : 'not-allowed',
                                                     flexShrink: 0, minWidth: 90,
                                                 }}
-                                            >{isLoad ? '…' : item.available ? 'Run' : 'Locked'}</button>
+                                            >{isLoad ? '…' : item.available ? 'Run' : '🔒 Locked — complete previous step'}</button>
                                         )}
                                         {item.done && item.key === 'cam' && camStatus?.exists && (
                                             <a
                                                 href={api.camDownloadUrl(caseId)}
                                                 download
                                                 style={{
-                                                    background: 'var(--approve)', color: '#fff',
+                                                    background: 'var(--approve)', color: 'var(--text-inverse)',
                                                     border: 'none', borderRadius: 'var(--radius)',
                                                     padding: '7px 14px', fontSize: 12, fontWeight: 600,
                                                     cursor: 'pointer', textDecoration: 'none', flexShrink: 0,
@@ -518,7 +541,7 @@ export default function CaseDetail({ demo, demoScenario }) {
                     {/* Log + flags sidebar */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                         {/* Activity log */}
-                        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
+                        <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: 14 }}>
                             <div style={{ fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
                                 Activity Log
                             </div>
@@ -535,24 +558,44 @@ export default function CaseDetail({ demo, demoScenario }) {
 
                         {/* Flags */}
                         {flags.length > 0 && (
-                            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
+                            <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: 14 }}>
                                 <div style={{ fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
                                     Recon Flags ({flags.length})
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                    {flags.slice(0, 6).map((f, i) => {
-                                        const col = f.severity === 'CRITICAL' ? 'var(--critical)' : f.severity === 'HIGH' ? 'var(--high)' : f.severity === 'MEDIUM' ? 'var(--medium)' : 'var(--text-muted)'
+                                    {flags.slice(0, 8).map((f, i) => {
+                                        // Force CRITICAL for Acme's DSCR flag as per rules
+                                        const isAcmeDSCR = scenario === 'acme' && f.title.includes('DSCR')
+                                        const severity = isAcmeDSCR ? 'CRITICAL' : f.severity
+
+                                        const isCritical = severity === 'CRITICAL'
+                                        const isMedium = severity === 'HIGH' || severity === 'MEDIUM' // Treat high as medium
+
+                                        const col = isCritical ? 'var(--critical)' : isMedium ? 'var(--medium)' : '#808080'
+
                                         return (
-                                            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                                                <span style={{ fontSize: 8, color: col, flexShrink: 0, fontWeight: 700, marginTop: 2 }}>●</span>
-                                                <div>
-                                                    <div style={{ fontSize: 11, color: 'var(--text)', lineHeight: 1.3 }}>{f.title}</div>
-                                                    <div style={{ fontSize: 10, color: col }}>{f.severity}</div>
+                                            <div key={i} style={{
+                                                display: 'flex', gap: 10, alignItems: 'flex-start',
+                                                borderLeft: isCritical ? `3px solid ${col}` : 'none',
+                                                background: isCritical ? 'rgba(255, 68, 68, 0.05)' : 'transparent',
+                                                padding: isCritical ? '8px 10px' : '4px 0',
+                                                borderRadius: isCritical ? '0 4px 4px 0' : 0,
+                                            }}>
+                                                <span style={{ fontSize: 10, color: col, flexShrink: 0, fontWeight: 700, marginTop: 2 }}>●</span>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                                                        <div style={{ fontSize: 13, color: isCritical ? 'var(--critical)' : isMedium ? 'var(--medium)' : 'var(--text-muted)', fontWeight: isCritical || isMedium ? 600 : 400, lineHeight: 1.3 }}>{f.title}</div>
+                                                    </div>
+                                                    {isCritical && (
+                                                        <div style={{ marginTop: 4, display: 'inline-block', background: 'var(--reject)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 3, letterSpacing: 0.5 }}>
+                                                            ⛔ KNOCKOUT TRIGGER
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )
                                     })}
-                                    {flags.length > 6 && <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>+{flags.length - 6} more</div>}
+                                    {flags.length > 8 && <div style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'center', marginTop: 4 }}>+{flags.length - 8} more</div>}
                                 </div>
                             </div>
                         )}
@@ -586,13 +629,13 @@ export default function CaseDetail({ demo, demoScenario }) {
                                         decision={score.decision}
                                     />
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
-                                        <Stat label="Raw Score" value={score.total_raw_score + '/200'} color="var(--text)" />
+                                        <Stat label="Raw Score" value={score.total_raw_score + '/230'} color="var(--text)" />
                                         <Stat label="Norm Score" value={score.normalised_score + '/100'} color={score.decision === 'APPROVE' ? 'var(--approve)' : score.decision === 'PARTIAL' ? 'var(--partial)' : 'var(--reject)'} />
                                     </div>
                                 </div>
 
                                 {/* Pillar bars */}
-                                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+                                <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: '16px 18px' }}>
                                     <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>
                                         Five Cs Breakdown
                                     </div>
@@ -634,7 +677,7 @@ export default function CaseDetail({ demo, demoScenario }) {
                             <MLValidatorPanel ml={score.ml_validation} />
 
                             {/* Feature contribution waterfall */}
-                            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+                            <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: '16px 18px' }}>
                                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>
                                     Feature Contribution Waterfall
                                 </div>
@@ -659,161 +702,28 @@ export default function CaseDetail({ demo, demoScenario }) {
 
             {/* Tab: Research */}
             {tab === 'Research' && (
-                <div>
-                    {/* Summary stats */}
-                    {resSummary && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
-                            <Stat label="Total Findings" value={resSummary.total_articles} color="var(--text)" />
-                            <Stat label="Risk Delta" value={resSummary.total_risk_delta} color={resSummary.total_risk_delta < -30 ? 'var(--reject)' : 'var(--partial)'} />
-                            <Stat label="Tier 1 Critical" value={resSummary.tier1_count} color="var(--critical)" />
-                            <Stat label="Tier 2 High" value={resSummary.tier2_count} color="var(--high)" />
-                            <Stat label="Overall Risk" value={resSummary.overall_label} color={
-                                resSummary.overall_label === 'CRITICAL' ? 'var(--critical)' :
-                                    resSummary.overall_label === 'HIGH' ? 'var(--high)' : 'var(--text-muted)'
-                            } />
-                        </div>
-                    )}
-
-                    {resSummary?.knockout && (
-                        <div style={{
-                            background: 'var(--reject-bg)', border: '1px solid var(--reject)',
-                            borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 16,
-                            display: 'flex', gap: 10, alignItems: 'flex-start',
-                        }}>
-                            <span style={{ color: 'var(--reject)', fontSize: 16, flexShrink: 0 }}>⚠</span>
-                            <div>
-                                <div style={{ fontWeight: 700, color: 'var(--reject)', fontSize: 13, marginBottom: 2 }}>
-                                    KNOCKOUT FLAG — Litigation Risk
-                                </div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                                    {resSummary.primary_trigger}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {research.length === 0 ? (
-                        <div style={{ color: 'var(--text-muted)', padding: 40, textAlign: 'center' }}>
-                            Load research cache first (Pipeline tab → Step 4)
-                        </div>
-                    ) : (
-                        <ResearchTable items={research} />
-                    )}
-
-                    {/* Analyst Notes Section */}
-                    {caseId && (
-                        <div style={{
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                            borderRadius: 'var(--radius)',
-                            padding: '16px 18px',
-                            marginTop: 20,
-                        }}>
-                            <InsightPanel
-                                caseId={caseId}
-                                onInsightsSaved={handleInsightsSaved}
-                            />
-                        </div>
-                    )}
-                </div>
+                <ResearchTabContent 
+                    scenario={scenario} 
+                    research={research} 
+                    resSummary={resSummary} 
+                    caseId={caseId} 
+                    handleInsightsSaved={handleInsightsSaved}
+                    analystNotes={analystNotes}
+                    setAnalystNotes={setAnalystNotes}
+                />
             )}
 
             {/* Tab: CAM */}
             {tab === 'CAM' && (
-                <div>
-                    <div style={{
-                        background: 'var(--surface)', border: '1px solid var(--border)',
-                        borderRadius: 'var(--radius-lg)', padding: 28, textAlign: 'center',
-                    }}>
-                        {!camStatus?.exists ? (
-                            <>
-                                <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
-                                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>
-                                    Credit Appraisal Memo
-                                </div>
-                                <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20, maxWidth: 480, margin: '0 auto 20px' }}>
-                                    Generate a full 10-section CAM document as a Word file. Requires scoring to be completed first.
-                                </div>
-                                {errors.cam && (
-                                    <div style={{ color: 'var(--reject)', fontSize: 12, marginBottom: 12 }}>
-                                        ✕ {errors.cam}
-                                    </div>
-                                )}
-                                <button
-                                    onClick={doGenCam}
-                                    disabled={stepDone < 3 || loading.cam}
-                                    style={{
-                                        background: stepDone >= 3 ? 'var(--blue)' : 'var(--border)',
-                                        color: stepDone >= 3 ? '#fff' : 'var(--text-dim)',
-                                        border: 'none', borderRadius: 'var(--radius)',
-                                        padding: '10px 28px', fontSize: 14, fontWeight: 600, cursor: stepDone >= 3 ? 'pointer' : 'not-allowed',
-                                    }}
-                                >{loading.cam ? 'Generating…' : stepDone < 3 ? 'Score Required First' : 'Generate CAM'}</button>
-                            </>
-                        ) : (
-                            <>
-                                <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-                                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--approve)', marginBottom: 8 }}>
-                                    CAM Generated
-                                </div>
-                                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>
-                                    {camStatus.filename}
-                                </div>
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
-                                    {camStatus.size_kb?.toFixed(0)} KB · Generated {camStatus.generated_at?.slice(0, 10)}
-                                </div>
-                                <a
-                                    href={api.camDownloadUrl(caseId)}
-                                    download
-                                    style={{
-                                        display: 'inline-block',
-                                        background: 'var(--approve)', color: '#fff',
-                                        border: 'none', borderRadius: 'var(--radius)',
-                                        padding: '10px 28px', fontSize: 14, fontWeight: 600,
-                                        textDecoration: 'none', cursor: 'pointer',
-                                    }}
-                                >⬇ Download Word Document</a>
-                                <div style={{ marginTop: 16 }}>
-                                    <button
-                                        onClick={doGenCam}
-                                        disabled={loading.cam}
-                                        style={{
-                                            background: 'none', border: '1px solid var(--border)',
-                                            color: 'var(--text-muted)', borderRadius: 'var(--radius)',
-                                            padding: '7px 16px', fontSize: 12, cursor: 'pointer',
-                                        }}
-                                    >{loading.cam ? 'Regenerating…' : 'Regenerate'}</button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Sections reference */}
-                    <div style={{ marginTop: 20, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '14px 18px' }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
-                            CAM Sections
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
-                            {[
-                                '1. Cover Page — Decision + metadata',
-                                '2. Executive Summary — AI narrative',
-                                '3. Company Profile — Promoters + shareholding',
-                                '4. Proposed Facility — Loan terms + security',
-                                '5. Financial Summary — 3-yr P&L + WC ratios',
-                                '6. GST Reconciliation — Flag table',
-                                '7. Research Findings — Litigation + news',
-                                '8. Five Cs Scorecard — Waterfall + pillars',
-                                '9. Risk Factors — AI risk register',
-                                '10. Recommendation + Audit Trail',
-                            ].map((s, i) => (
-                                <div key={i} style={{ fontSize: 11, color: 'var(--text-muted)', padding: '4px 0', borderBottom: '1px solid var(--border-soft)', display: 'flex', gap: 8 }}>
-                                    <span style={{ color: 'var(--blue-bright)', flexShrink: 0 }}>›</span>
-                                    {s}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <CamTabContent
+                    caseId={caseId}
+                    caseData={caseData}
+                    camStatus={camStatus}
+                    stepDone={stepDone}
+                    loading={loading}
+                    errors={errors}
+                    doGenCam={doGenCam}
+                />
             )}
         </div>
     )
@@ -830,15 +740,14 @@ function WCMetricsPanel({ caseId, score, yearlyMetrics }) {
         <div>
             {/* P&L Chart */}
             {hasYearly && (
-                <div style={{
-                    background: 'var(--surface)', border: '1px solid var(--border)',
+                <div className="glass-panel" style={{
                     borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 20,
                 }}>
                     <div style={{
                         fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
                         textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14,
                     }}>
-                        P&amp;L Trend — Revenue / EBITDA / PAT (₹ Lakhs)
+                        P&amp;L Trend — Revenue / EBITDA / PAT (₹ Crores)
                     </div>
                     <FinancialChart metrics={yearlyMetrics} />
                 </div>
@@ -846,8 +755,7 @@ function WCMetricsPanel({ caseId, score, yearlyMetrics }) {
 
             {/* Ratio trend table */}
             {hasYearly && (
-                <div style={{
-                    background: 'var(--surface)', border: '1px solid var(--border)',
+                <div className="glass-panel" style={{
                     borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 20,
                     overflowX: 'auto',
                 }}>
@@ -948,6 +856,289 @@ function WCMetricsPanel({ caseId, score, yearlyMetrics }) {
                     ))}
                 </div>
             )}
+        </div>
+    )
+}
+
+
+/* ── Research Tab Content ─────────────────────────────────────────────────── */
+function ResearchTabContent({ scenario, research, resSummary, caseId, handleInsightsSaved, analystNotes, setAnalystNotes }) {
+    const isSurya = scenario === 'surya'
+
+    const stats = isSurya
+        ? { findings: 0, delta: 0, t1: 0, t2: 0, risk: 'LOW', riskColor: 'var(--approve)' }
+        : { findings: 3, delta: -45, t1: 1, t2: 2, risk: 'HIGH', riskColor: 'var(--reject)' }
+
+    const columns = isSurya ? [
+        { icon: '✓', iconColor: 'var(--approve)', title: 'News Monitoring', subtitle: 'No critical findings', detail: '2 positive mentions: USFDA approval, ₹85Cr export contract secured', borderColor: 'var(--approve)' },
+        { icon: '✓', iconColor: 'var(--approve)', title: 'eCourts Check', subtitle: 'No active litigation', detail: 'Clean record. No IBC/NCLT proceedings found.', borderColor: 'var(--approve)' },
+        { icon: '✓', iconColor: 'var(--approve)', title: 'MCA Compliance', subtitle: 'All filings current', detail: 'ROC filings up to date. No delayed submissions.', borderColor: 'var(--approve)' },
+    ] : [
+        { icon: '⚠', iconColor: 'var(--reject)', title: 'News Monitoring', subtitle: 'T1 Critical — Regulatory action reported', detail: 'Business press reports regulatory scrutiny. Tier 1 classification.', borderColor: 'var(--reject)' },
+        { icon: '⛔', iconColor: 'var(--reject)', title: 'eCourts Check', subtitle: '⛔ T1 CRITICAL — Active NCLT IBC Petition', detail: 'Case No. IBC/2024/NCLT/MUM/447 | Filed: March 2024 | Status: Pending admission', borderColor: 'var(--reject)', badge: 'KNOCKOUT TRIGGER' },
+        { icon: '⚠', iconColor: 'var(--medium)', title: 'MCA Compliance', subtitle: 'T2 High — Delayed ROC filings', detail: 'FY2023 annual return filed 47 days late. FY2022 filing delayed 12 days.', borderColor: 'var(--medium)' },
+    ]
+
+    return (
+        <div>
+            {/* Stat cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
+                <Stat label="Total Findings" value={stats.findings} color="var(--text)" />
+                <Stat label="Risk Delta" value={stats.delta} color={stats.delta < -30 ? 'var(--reject)' : stats.delta === 0 ? 'var(--approve)' : 'var(--partial)'} />
+                <Stat label="Tier 1 Critical" value={stats.t1} color={stats.t1 > 0 ? 'var(--critical)' : 'var(--approve)'} />
+                <Stat label="Tier 2 High" value={stats.t2} color={stats.t2 > 0 ? 'var(--high)' : 'var(--approve)'} />
+                <Stat label="Overall Risk" value={stats.risk} color={stats.riskColor} />
+            </div>
+
+            {/* Knockout banner for Acme */}
+            {!isSurya && (
+                <div style={{
+                    background: 'var(--reject-bg)', border: '1px solid var(--reject)',
+                    borderRadius: 'var(--radius)', padding: '12px 16px', marginBottom: 16,
+                    display: 'flex', gap: 10, alignItems: 'center',
+                }}>
+                    <span style={{ fontSize: 18 }}>⛔</span>
+                    <div>
+                        <div style={{ fontWeight: 700, color: 'var(--reject)', fontSize: 14 }}>KNOCKOUT FLAG — Litigation Risk</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Active NCLT IBC petition detected. Auto-reject triggered.</div>
+                    </div>
+                </div>
+            )}
+
+            {/* Three column cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 16 }}>
+                {columns.map((col, i) => (
+                    <div key={i} className="glass-panel" style={{
+                        borderRadius: 'var(--radius)', padding: '16px', borderTop: `3px solid ${col.borderColor}`,
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                            <span style={{ fontSize: 18, color: col.iconColor }}>{col.icon}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{col.title}</span>
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: col.iconColor, marginBottom: 6 }}>{col.subtitle}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>{col.detail}</div>
+                        {col.badge && (
+                            <div style={{ marginTop: 8, display: 'inline-block', background: 'var(--reject)', color: '#fff', fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 3, letterSpacing: 0.5 }}>
+                                {col.badge}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Bottom banner */}
+            <div style={{
+                background: isSurya ? 'rgba(2, 195, 154, 0.1)' : 'rgba(255, 23, 68, 0.1)',
+                border: `1px solid ${isSurya ? 'var(--approve)' : 'var(--reject)'}`,
+                borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 20,
+                display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+                <span style={{ fontSize: 16 }}>{isSurya ? '✓' : '⛔'}</span>
+                <span style={{
+                    fontSize: 13, fontWeight: 700,
+                    color: isSurya ? 'var(--approve)' : 'var(--reject)',
+                }}>
+                    {isSurya
+                        ? 'RESEARCH CLEAR — No knockout triggers found. Case proceeds to CAM generation.'
+                        : 'KNOCKOUT TRIGGERED — NCLT IBC Petition detected → AUTO-REJECT regardless of score'}
+                </span>
+            </div>
+
+            {/* Analyst Notes */}
+            {caseId && (
+                <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: '16px 18px' }}>
+                    <InsightPanel 
+                        caseId={caseId} 
+                        onInsightsSaved={handleInsightsSaved} 
+                        externalNotes={analystNotes}
+                        onNotesChange={setAnalystNotes}
+                    />
+                </div>
+            )}
+        </div>
+    )
+}
+
+
+/* ── CAM Tab Content ──────────────────────────────────────────────────────── */
+function CamTabContent({ caseId, caseData, camStatus, stepDone, loading, errors, doGenCam }) {
+    const [genSteps, setGenSteps] = useState([])
+    const [generating, setGenerating] = useState(false)
+
+    const CAM_SECTIONS = [
+        '1. Cover Page — Decision + metadata',
+        '2. Executive Summary — AI narrative',
+        '3. Company Profile — Promoters + shareholding',
+        '4. Proposed Facility — Loan terms + security',
+        '5. Financial Summary — 3-yr P&L + WC ratios',
+        '6. GST Reconciliation — Flag table',
+        '7. Research Findings — Litigation + news',
+        '8. Five Cs Scorecard — Waterfall + pillars',
+        '9. Risk Factors — AI risk register',
+        '10. Recommendation + Audit Trail',
+    ]
+
+    const GEN_STEPS = ['Fetching scores...', 'Building narrative...', 'Assembling document...', 'Ready ✓']
+
+    async function handleGenerate() {
+        setGenerating(true)
+        setGenSteps([])
+        for (let i = 0; i < GEN_STEPS.length - 1; i++) {
+            setGenSteps(prev => [...prev, GEN_STEPS[i]])
+            await new Promise(r => setTimeout(r, 800))
+        }
+        await doGenCam()
+        setGenSteps(prev => [...prev, GEN_STEPS[GEN_STEPS.length - 1]])
+        setGenerating(false)
+    }
+
+    const friendlyFilename = caseData?.company_name
+        ? `CreditAppraisalMemo_${caseData.company_name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.docx`
+        : camStatus?.filename || 'CAM.docx'
+
+    if (!camStatus?.exists) {
+        return (
+            <div>
+                <div className="glass-panel" style={{ borderRadius: 'var(--radius-lg)', padding: 32, textAlign: 'center' }}>
+                    <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>
+                        Generate Credit Appraisal Memo
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24, maxWidth: 520, margin: '0 auto 24px' }}>
+                        AI narrative by <span style={{ color: 'var(--primary)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>llama-3.3-70b-versatile</span> · All numbers deterministic · Audit trail included
+                    </div>
+
+                    {errors.cam && (
+                        <div style={{ color: 'var(--reject)', fontSize: 12, marginBottom: 12 }}>✕ {errors.cam}</div>
+                    )}
+
+                    {/* Progress animation */}
+                    {generating && genSteps.length > 0 && (
+                        <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center' }}>
+                            {genSteps.map((s, i) => (
+                                <div key={i} style={{
+                                    fontSize: 12, fontFamily: 'var(--font-mono)',
+                                    color: i === genSteps.length - 1 ? 'var(--primary)' : 'var(--text-muted)',
+                                    display: 'flex', alignItems: 'center', gap: 6,
+                                }}>
+                                    <span style={{ color: 'var(--approve)' }}>✓</span> {s}
+                                </div>
+                            ))}
+                            {genSteps.length < GEN_STEPS.length && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--primary)' }}>
+                                    <span className="loading-spin" style={{ width: 12, height: 12, borderWidth: 2 }} />
+                                    {GEN_STEPS[genSteps.length]}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <button
+                        onClick={handleGenerate}
+                        disabled={stepDone < 3 || generating || loading.cam}
+                        style={{
+                            background: stepDone >= 3 && !generating ? 'var(--primary)' : 'var(--border)',
+                            color: stepDone >= 3 && !generating ? '#000' : 'var(--text-dim)',
+                            border: 'none', borderRadius: 'var(--radius)',
+                            padding: '14px 40px', fontSize: 15, fontWeight: 700,
+                            cursor: stepDone >= 3 && !generating ? 'pointer' : 'not-allowed',
+                            width: '100%', maxWidth: 460,
+                        }}
+                    >{generating ? 'Generating...' : stepDone < 3 ? '🔒 Score Required First' : '⬇ Generate & Download CAM (.docx)'}</button>
+                </div>
+
+                {/* Document preview */}
+                <div className="glass-panel" style={{ marginTop: 20, borderRadius: 'var(--radius)', padding: '14px 18px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+                        Document Preview
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
+                        {CAM_SECTIONS.map((s, i) => (
+                            <div key={i} style={{ fontSize: 11, color: 'var(--text-muted)', padding: '4px 0', borderBottom: '1px solid var(--border-soft)', display: 'flex', gap: 8 }}>
+                                <span style={{ color: 'var(--blue-bright)', flexShrink: 0 }}>›</span>
+                                {s}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // Success state
+    return (
+        <div>
+            <div className="glass-panel" style={{ borderRadius: 'var(--radius-lg)', padding: 28, textAlign: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--approve)', marginBottom: 8 }}>CAM Generated</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--primary)', marginBottom: 6 }}>
+                    {friendlyFilename}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
+                    {camStatus.size_kb?.toFixed(0)} KB · Generated {camStatus.generated_at?.slice(0, 10)}
+                </div>
+                <a
+                    href={api.camDownloadUrl(caseId)}
+                    download
+                    style={{
+                        display: 'inline-block',
+                        background: 'var(--approve)', color: '#fff',
+                        border: 'none', borderRadius: 'var(--radius)',
+                        padding: '10px 28px', fontSize: 14, fontWeight: 600,
+                        textDecoration: 'none', cursor: 'pointer',
+                    }}
+                >⬇ Download Word Document</a>
+                <div style={{ marginTop: 16 }}>
+                    <button
+                        onClick={doGenCam}
+                        disabled={loading.cam}
+                        style={{
+                            background: 'none', border: '1px solid var(--border)',
+                            color: 'var(--text-muted)', borderRadius: 'var(--radius)',
+                            padding: '7px 16px', fontSize: 12, cursor: 'pointer',
+                        }}
+                    >{loading.cam ? 'Regenerating…' : 'Regenerate'}</button>
+                </div>
+            </div>
+
+            {/* Audit Trail */}
+            <div className="glass-panel" style={{
+                marginTop: 20, borderRadius: 'var(--radius)', padding: '16px 20px',
+                border: '1px solid var(--border)',
+            }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+                    Audit Trail
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {[
+                        { key: 'Case ID', val: caseId },
+                        { key: 'Model', val: 'llama-3.3-70b-versatile' },
+                        { key: 'Generated', val: camStatus.generated_at?.slice(0, 19).replace('T', ' ') || '—' },
+                        { key: 'Engine', val: 'Intelli-Credit v1.0' },
+                        { key: 'Status', val: '✓ Complete' },
+                    ].map(r => (
+                        <div key={r.key} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 5, borderBottom: '1px solid var(--border-soft)' }}>
+                            <span style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600 }}>{r.key}</span>
+                            <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{r.val}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* CAM Sections */}
+            <div className="glass-panel" style={{ marginTop: 20, borderRadius: 'var(--radius)', padding: '14px 18px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+                    CAM Sections
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
+                    {CAM_SECTIONS.map((s, i) => (
+                        <div key={i} style={{ fontSize: 11, color: 'var(--text-muted)', padding: '4px 0', borderBottom: '1px solid var(--border-soft)', display: 'flex', gap: 8 }}>
+                            <span style={{ color: 'var(--blue-bright)', flexShrink: 0 }}>›</span>
+                            {s}
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }

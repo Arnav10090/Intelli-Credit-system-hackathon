@@ -41,7 +41,7 @@ export const api = {
   saveInsights: (id, data)      => req('POST', `/cases/${id}/insights`, data),
 
   // CAM
-  generateCam:  (id, analyst) => req('POST', `/cases/${id}/cam?analyst_id=${analyst || 'Analyst'}`),
+  generateCam:  (id, analyst, analyst_notes) => req('POST', `/cases/${id}/cam?analyst_id=${analyst || 'Analyst'}`, { analyst_notes }),
   getCamStatus: (id)          => req('GET',  `/cases/${id}/cam/status`),
   camDownloadUrl: (id)        => `${BASE}/api/v1/cases/${id}/cam/download`,
 }

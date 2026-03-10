@@ -243,7 +243,8 @@ def compute_score(features: FeatureSet, insight_adjustments: list[dict] | None =
 
     total_raw = (character_score + capacity_score +
                  capital_score + collateral_score + conditions_score)
-    normalised = round((total_raw / settings.SCORE_MAX) * 100)
+    ACTUAL_MAX = 230  # 60 (Character) + 60 (Capacity) + 45 (Capital) + 30 (Collateral) + 35 (Conditions)
+    normalised = round((total_raw / ACTUAL_MAX) * 100)
 
     grade, label = _get_grade(normalised)
 
@@ -285,7 +286,7 @@ def compute_score(features: FeatureSet, insight_adjustments: list[dict] | None =
     )
 
     logger.info(
-        "Scorecard complete: raw=%d/200 normalised=%d/100 grade=%s decision=%s",
+        "Scorecard complete: raw=%d/230 normalised=%d/100 grade=%s decision=%s",
         total_raw, normalised, grade, decision
     )
     return result

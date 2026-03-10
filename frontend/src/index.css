@@ -2,48 +2,171 @@
 /* Bloomberg Terminal meets modern Indian fintech. Dark, data-dense, precise. */
 
 :root {
-  /* Palette */
-  --bg:          #060D1B;
-  --surface:     #0C1628;
-  --surface-alt: #0F1E35;
-  --border:      #172640;
-  --border-soft: #1A2E4A;
+  /* Ocean Green & Gold Theme Base */
+  --bg:          #040D12;      /* Very dark, deep ocean navy/black */
+  --surface:     rgba(10, 25, 31, 0.6); /* Glassmorphism base */
+  --surface-alt: rgba(255, 255, 255, 0.03);
+  --border:      rgba(2, 195, 154, 0.2);
+  --border-soft: rgba(255, 255, 255, 0.05);
 
-  /* Brand blue */
-  --blue:        #2B7BE0;
-  --blue-bright: #4D9EFF;
-  --blue-dim:    #1A3D66;
+  --primary:         #02C39A;  /* Ocean Green */
+  --primary-glow:    rgba(2, 195, 154, 0.4);
+  --primary-bg:      rgba(2, 195, 154, 0.1);
+  
+  --secondary:       #FFD700;  /* Gold */
+  --secondary-glow:  rgba(255, 215, 0, 0.5);
+  
+  --blue:        #02C39A;
+  --blue-bright: #00E5B5;
+  --blue-dim:    rgba(2, 195, 154, 0.1);
 
-  /* Semantic */
-  --approve:     #0EA97A;
-  --approve-bg:  #052E1E;
-  --partial:     #E09B2B;
-  --partial-bg:  #2E1E05;
-  --reject:      #D93B3B;
-  --reject-bg:   #2E0505;
+  --approve:     #02C39A;
+  --approve-bg:  rgba(2, 195, 154, 0.08);
+  --partial:     #FFD700;
+  --partial-bg:  rgba(255, 215, 0, 0.08);
+  --reject:      #FF4C4C;
+  --reject-bg:   rgba(255, 76, 76, 0.08);
+  
   --critical:    #FF4444;
   --high:        #FF8C00;
-  --medium:      #FFD600;
-  --clean:       #0EA97A;
+  --medium:      #FFD700;
+  --clean:       #02C39A;
 
   /* Text */
-  --text:        #D8E6F5;
-  --text-muted:  #6A8BAA;
-  --text-dim:    #3E5A78;
+  --text:        #E8F1F2;      /* Crisp light text */
+  --text-muted:  #9BAEBC;      /* Metallic/Oceanic grey */
+  --text-dim:    #5E7382;      /* Deep grey */
+
+  --hero-bg:     linear-gradient(135deg, rgba(2,195,154,0.1) 0%, rgba(4,13,18,0.8) 100%);
 
   /* Fonts */
   --font-ui:     'Outfit', 'Segoe UI', system-ui, sans-serif;
   --font-mono:   'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 
   /* Sizing */
-  --radius:      6px;
-  --radius-lg:   10px;
-  --shadow:      0 4px 24px rgba(0,0,0,0.5);
+  --radius:      12px;         /* Curved borders */
+  --radius-lg:   20px;
+  --shadow:      0 8px 32px rgba(0,0,0,0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body.light-mode {
+  --bg:          #EAF4F4;      /* Light ocean breeze */
+  --surface:     rgba(255, 255, 255, 0.7);      /* Glass white */
+  --surface-alt: rgba(255, 255, 255, 0.9);
+  --border:      rgba(2, 195, 154, 0.3);
+  --border-soft: rgba(0, 0, 0, 0.05);
 
-html { scroll-behavior: smooth; }
+  --primary:         #00A896;  /* Darker ocean green for text contrast */
+  --primary-glow:    rgba(0, 168, 150, 0.3);
+  --primary-bg:      rgba(0, 168, 150, 0.1);
+  
+  --secondary:       #D4AF37;  /* Darker gold */
+  --secondary-glow:  rgba(212, 175, 55, 0.4);
+  
+  --blue:        #00A896;
+  --blue-bright: #02C39A;
+  --blue-dim:    rgba(0, 168, 150, 0.1);
+
+  --approve:     #00A896;
+  --approve-bg:  rgba(0, 168, 150, 0.08);
+  --partial:     #D4AF37;
+  --partial-bg:  rgba(212, 175, 55, 0.08);
+  --reject:      #E53E3E;
+  --reject-bg:   rgba(229, 62, 62, 0.08);
+  
+  --critical:    #C53030;
+  --high:        #DD6B20;
+  --medium:      #D4AF37;
+  --clean:       #00A896;
+
+  --text:        #040D12;      /* Dark text */
+  --text-muted:  #4A5568;      /* Grey text */
+  --text-dim:    #718096;      /* Lighter grey text */
+  --text-inverse: #FFFFFF;     
+  
+  --hero-bg:     linear-gradient(135deg, rgba(2,195,154,0.05) 0%, rgba(255,255,255,0.8) 100%);
+
+  --shadow:      0 8px 32px rgba(31, 38, 135, 0.07);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  /* Fix the SVG icon color in light mode */
+  .sidebar-logo svg { stroke: var(--primary); }
+  .sidebar-logo-text { color: var(--text) !important; } 
+}
+
+/* Global Animations & Effects */
+@keyframes orbFloat {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(-20px) scale(1.05); opacity: 0.8; }
+  100% { transform: translateY(0) scale(1); opacity: 0.5; }
+}
+
+@keyframes goldGlow {
+  0% { box-shadow: 0 0 10px var(--secondary-glow); }
+  50% { box-shadow: 0 0 25px var(--secondary); }
+  100% { box-shadow: 0 0 10px var(--secondary-glow); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ringPulse {
+  0% { box-shadow: 0 0 0 0 rgba(2, 195, 154, 0.4); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+}
+
+.gold-hover {
+  transition: all 0.3s ease;
+}
+.gold-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--secondary-glow);
+  border-color: var(--secondary);
+}
+
+/* Background Animated Orbs */
+.bg-orbs {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 10s infinite ease-in-out;
+}
+.orb-1 {
+  width: 400px; height: 400px;
+  background: var(--primary-glow);
+  top: -100px; left: -100px;
+  animation-duration: 12s;
+}
+.orb-2 {
+  width: 500px; height: 500px;
+  background: var(--secondary-glow);
+  bottom: -200px; right: 10%;
+  animation-duration: 15s;
+  animation-delay: -5s;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s, border-color 0.3s; }
 
 body {
   font-family: var(--font-ui);
@@ -51,91 +174,167 @@ body {
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
 }
 
+select {
+  background-color: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  outline: none;
+}
+
+option {
+  background-color: var(--bg); /* Use theme background for options */
+  color: var(--text);
+}
+
+/* Base Utility Classes */
+.text-primary { color: var(--primary); }
+.bg-primary { background: var(--primary); color: #000; }
+.border-primary { border: 1px solid var(--primary); }
+
 /* ── Layout ──────────────────────────────────────────────────────────────── */
-.app-layout { display: flex; min-height: 100vh; }
+.app-layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
 .sidebar {
-  width: 220px;
-  flex-shrink: 0;
+  width: 250px;
   background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  z-index: 40;
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
 }
 
 .sidebar-logo {
-  padding: 20px 18px 16px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .sidebar-logo h1 {
   font-size: 16px;
   font-weight: 700;
-  color: var(--blue-bright);
+  color: var(--primary);
   letter-spacing: -0.3px;
 }
 .sidebar-logo p {
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--secondary);
   margin-top: 2px;
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.sidebar-nav { flex: 1; padding: 12px 0; }
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.sidebar-nav::-webkit-scrollbar { display: none; }
 .sidebar-nav a, .sidebar-nav button {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 18px;
+  gap: 12px;
+  padding: 12px 24px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   background: none;
   border: none;
   cursor: pointer;
   width: 100%;
   text-align: left;
-  transition: color 0.15s, background 0.15s;
+  transition: all 0.2s;
   border-radius: 0;
 }
 .sidebar-nav a:hover, .sidebar-nav button:hover {
-  color: var(--text);
+  color: var(--primary);
   background: var(--surface-alt);
+  padding-left: 28px; /* subtle slide effect */
 }
 .sidebar-nav a.active {
-  color: var(--blue-bright);
-  background: var(--blue-dim);
+  color: var(--secondary);
+  background: var(--primary-bg);
+  border-right: 3px solid var(--secondary);
 }
-.sidebar-icon { font-size: 15px; }
+.sidebar-icon { font-size: 16px; transition: transform 0.2s; }
+.sidebar-nav a:hover .sidebar-icon { transform: scale(1.1); color: var(--secondary); }
 
 .main-content {
-  margin-left: 220px;
+  margin-left: 250px;
   flex: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 10;
+}
+.main-content.expanded {
+  /* When the sidebar is collapsed, center the main page body horizontally
+     while leaving the topbar free to slide into the collapsed gap. */
+  margin-left: 0;
+}
+
+.main-content.expanded .topbar {
+  /* Topbar slides left into the collapsed sidebar gap so there's no
+     visible empty space between the collapsed button and the navbar. */
+  margin-left: -250px;
+  width: calc(100% + 250px);
+  /* Increase left padding so the search input is not hidden under the
+     floating collapsed-open button (fixed at left:16). */
+  padding-left: 96px;
+  /* Ensure the topbar appears above the floating open button */
+  z-index: 90;
+}
+
+/* Ensure the search input fits when sidebar is collapsed */
+.main-content.expanded .topbar input[type="text"] {
+  width: 220px;
+  position: relative;
+  z-index: 95; /* make sure the input and its icon sit above the open button */
+}
+
+.main-content.expanded .case-detail,
+.main-content.expanded .page-body {
+  /* Center the main content area in the viewport when sidebar is
+     collapsed. Keep a comfortable padding and a sensible max width. */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .topbar {
-  height: 52px;
+  height: 60px;
   background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 30;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 .topbar-title {
   font-size: 15px;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-export default function InsightPanel({ caseId, onInsightsSaved }) {
+export default function InsightPanel({ caseId, onInsightsSaved, externalNotes, onNotesChange }) {
   const [notes, setNotes] = useState('')
   const [adjustments, setAdjustments] = useState([])
   const [totalDelta, setTotalDelta] = useState(0)
@@ -17,7 +17,7 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
   // Load existing insights on mount
   useEffect(() => {
     if (!caseId) return
-    
+
     const loadInsights = async () => {
       try {
         const response = await fetch(`${BASE}/api/v1/cases/${caseId}/insights`)
@@ -33,9 +33,24 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
         console.error('Failed to load insights:', err)
       }
     }
-    
+
     loadInsights()
   }, [caseId])
+
+  // Sync internal notes with externalNotes when they change
+  useEffect(() => {
+    if (externalNotes !== undefined && externalNotes !== notes) {
+      setNotes(externalNotes)
+    }
+  }, [externalNotes])
+
+  // Call onNotesChange when local notes change
+  const handleNotesLocalChange = (newVal) => {
+    setNotes(newVal)
+    if (onNotesChange) {
+      onNotesChange(newVal)
+    }
+  }
 
   const handleSaveNotes = async () => {
     if (isOverLimit) {
@@ -66,7 +81,7 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
       setAdjustments(data.adjustments || [])
       setTotalDelta(data.total_delta || 0)
       setSuccessMessage(data.message || 'Insights saved successfully')
-      
+
       if (onInsightsSaved) {
         onInsightsSaved(data.adjustments || [])
       }
@@ -119,7 +134,7 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
             animation: fadeIn 0.2s ease-out backwards;
           }
         `}</style>
-        
+
         <div style={{
           fontSize: 12,
           fontWeight: 600,
@@ -130,7 +145,7 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
         }}>
           Score Impact Preview
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {adjustments.map((adj, i) => {
             const isNegative = adj.delta < 0
@@ -138,10 +153,10 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
             const color = isNegative ? '#ef4444' : '#10b981'
             const bgColor = isNegative ? '#fef2f2' : '#f0fdf4'
             const borderColor = isNegative ? '#fecaca' : '#bbf7d0'
-            
+
             return (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="adjustment-item"
                 style={{
                   display: 'flex',
@@ -168,7 +183,7 @@ export default function InsightPanel({ caseId, onInsightsSaved }) {
                   lineHeight: '20px',
                   flexShrink: 0,
                 }}>{icon}</span>
-                
+
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
                     fontSize: 13,
@@ -241,8 +256,8 @@ Concerns:
 - Collateral disputed by third party claiming prior encumbrance
 
 Overall: Mixed signals requiring careful evaluation.`
-    
-    setNotes(demoNotes)
+
+    handleNotesLocalChange(demoNotes)
     setError(null)
     setSuccessMessage(null)
   }
@@ -276,7 +291,7 @@ Overall: Mixed signals requiring careful evaluation.`
             ✨ AI-Powered Insight Analysis
           </div>
         </div>
-        
+
         <button
           onClick={loadDemoScenario}
           disabled={loading}
@@ -311,7 +326,7 @@ Overall: Mixed signals requiring careful evaluation.`
 
       <textarea
         value={notes}
-        onChange={(e) => setNotes(e.target.value)}
+        onChange={(e) => handleNotesLocalChange(e.target.value)}
         placeholder="Enter your observations from site visit or management meeting (e.g. Factory operating at 40% capacity)"
         disabled={loading}
         style={{

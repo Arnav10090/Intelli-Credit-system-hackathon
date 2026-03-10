@@ -26,7 +26,7 @@ export default function PillarBars({ pillars = {} }) {
                     <div key={p.key}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
                             <span style={{ fontSize: 12, color: 'var(--text-dim)', marginRight: 6 }}>{p.icon}</span>
-                            <span style={{ fontSize: 12, color: 'var(--text)', flex: 1, fontWeight: 500 }}>
+                            <span style={{ fontSize: 12, color: 'var(--text)', flex: 1, fontWeight: 600 }}>
                                 {p.label}
                             </span>
                             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color }}>

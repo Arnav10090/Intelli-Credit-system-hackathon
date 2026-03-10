@@ -1,0 +1,178 @@
+{
+  "company_name": "Reliance Industries",
+  "cin": "",
+  "run_timestamp": "2026-03-10T04:39:36.634425+00:00",
+  "aggregate": {
+    "total_news_risk_delta": 0,
+    "total_ecourts_risk_delta": 0,
+    "total_mca_risk_notes": 0,
+    "total_risk_delta": 0,
+    "overall_research_risk_label": "CLEAN",
+    "article_count": 14,
+    "tier1_count": 0,
+    "tier2_count": 0,
+    "tier3_count": 0
+  },
+  "sources_tried": [
+    "google_news_rss",
+    "mca21",
+    "bse_india"
+  ],
+  "sources_failed": [],
+  "articles": [
+    {
+      "title": "Reliance Industries Ltd is Rated Sell - Markets Mojo",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQVUtwYThDcVFuWmkyM1lNS3ZVdmxqVUh5QjlLUk05MUhtZVRxN1Z5eWtvcEpfTVRoa2ZsOG1KMWRzUWtlZzJWWUd4MXJFdVVsT0I0WDdYRWJMWXJFcUFhWlFkRTU0U29nUUlHME5xREpUOFNMQ3JqRlRyamZVZTlnZ1N2ODdrLUNjdTdjZktyWC1tSm9BVlUwRnJKSTF2ODhC?oc=5",
+      "source_name": "Google News",
+      "published_date": "Mon, 09 Ma",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMioAFBVV95cUxQVUtwYThDcVFuWmkyM1lNS3ZVdmxqVUh5QjlLUk05MUhtZVRxN1Z5eWtvcEpfTVRoa2ZsOG1KMWRzUWtlZzJWWUd4MXJFdVVsT0I0WDdYRWJMWXJFcUFhWlFkRTU0U29nUUlHME5xREpUOFNMQ3JqRlRyamZVZTlnZ1N2ODdrLUNjdTdjZktyWC1tSm9BVlUwRnJKSTF2ODhC?oc=5\" target=\"_blank\">Reliance Industries Ltd is Rated Sell</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">Markets Mojo</font>",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Is the correction in Reliance Industries overdone? JM Financial sees over 28% upside potential - The Financial Express",
+      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxORlFHV2FTWUZPMHh2MjJMWmlhVktBamhxQldjUTVwUEhVQUpocWZRNzVBa2c5MWstUlJ1Y0piQUw2U1Vaa3NRa2xNcWRJUzctbU5jVlFWeGktT2NrVm1haEZwVC1NZF9DbnJlZldQMzNtTVVNVC16a3NON2IzWU5TcnRDV2c4LTNCNUtsU0s4ajFhSjQzMTFlSmNCVkZoZV9WWjdKNVBKc2lfaVM4aVZmRklmbVBNN0xGb1NwRXVVQi1Ec2gzNmJndG1zU09EdE5makI5VUpzbEXSAd8BQVVfeXFMTjJ6cHpEQk8tNDVINVppbWZCa2tsMzBfZ2RnbE5VV09oSmFmd2pGbGRPemZWZldTNTk3d3FvdE1fMXZ5WG5iY1p3S1gyR1BjdS10ZU1iVURtamFhSG9rMXBvQmctZ3d0Q2hfa2RVTlNUZ2l6ZEljeFBURzZsdGNGcDdxdEg3emNZSzFueXEtVm95NWtpWEp3LU9oRlFSbHl2SU9DbGxMb3cwOHNrcVFtUzNkOHpzczdmSkh5QjYyVzhKaS02dGlzaUJ5aDAyNTJTQ1ctTVlLem9XZ0RtM1Vsbw?oc=5",
+      "source_name": "Google News",
+      "published_date": "Fri, 06 Ma",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi2AFBVV95cUxORlFHV2FTWUZPMHh2MjJMWmlhVktBamhxQldjUTVwUEhVQUpocWZRNzVBa2c5MWstUlJ1Y0piQUw2U1Vaa3NRa2xNcWRJUzctbU5jVlFWeGktT2NrVm1haEZwVC1NZF9DbnJlZldQMzNtTVVNVC16a3NON2IzWU5TcnRDV2c4LTNCNUtsU0s4ajFhSjQzMTFlSmNCVkZoZV9WWjdKNVBKc2lfaVM4aVZmRklmbVBNN0xGb1NwRXVVQi1Ec2gzNmJndG1zU09EdE5makI5VUpzbEXSAd8BQVVfeXFMTjJ6cHpEQk8tNDVINVppbWZCa2tsMzBfZ2RnbE5VV09oSmFmd2pGbGRPemZWZldTNTk3d3FvdE1fMXZ5WG5iY1p3S1gyR1BjdS10ZU1iVURtamFhSG9rMXBvQmctZ3d0Q2hfa2RVTlNUZ2l6ZE",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Reliance Industries Receives NCLT Approval for SevenHills Healthcare Resolution Plan - scanx.trade",
+      "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxQLTIyNExCLTI3QzZPRWhpWlhUd0RzVlk1VERpME9qdzlCd1R1aF9HWFo0TFJEQ09VUkU4alp3SmplTlRPWHMyYVk5VC1NbllHbjdvcUNodUtvcDM0YldZb3NENFBFd1Jta3BNOVcyajhadC1kZEh1RlRqNC04Sm0wWlQ4NjVKeWRrZXFzMVlUS2pCb2F5dk80LUFYNXFrbW43TkYzYTRIaUhhenBVdE5SQjQ0UEpiNFlyMjJ6VEJFQUY1OWtuX2FTTC1xa3JiSXN0Skhua1NaLUlBNzJ3?oc=5",
+      "source_name": "Google News",
+      "published_date": "Thu, 29 Ja",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi3AFBVV95cUxQLTIyNExCLTI3QzZPRWhpWlhUd0RzVlk1VERpME9qdzlCd1R1aF9HWFo0TFJEQ09VUkU4alp3SmplTlRPWHMyYVk5VC1NbllHbjdvcUNodUtvcDM0YldZb3NENFBFd1Jta3BNOVcyajhadC1kZEh1RlRqNC04Sm0wWlQ4NjVKeWRrZXFzMVlUS2pCb2F5dk80LUFYNXFrbW43TkYzYTRIaUhhenBVdE5SQjQ0UEpiNFlyMjJ6VEJFQUY1OWtuX2FTTC1xa3JiSXN0Skhua1NaLUlBNzJ3?oc=5\" target=\"_blank\">Reliance Industries Receives NCLT Approval for SevenHills Healthcare Resolution Plan</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">scanx.tra",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Reliance Industries' rating raised to 'A-' from 'BBB+' by S&P Global - BusinessLine",
+      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOcElqeUVPN3ZsdFJQTkdScDJMS1pYbEE0LXFOcnN1SGNuS1pvQS04LUhUYkMydkhrcWhmTXpxQ2ZaMHdKZktrXzY4dE85VFFGV3BYSGlWekRVR1pTaUlpMUVzRUs3RkRWWjhNUmRqMzJUeVJMdmEyZXpkZ0Jncnl1cmxVQjdka294RUhrUWdsTjc2SllidUFnZzNrMzNuUFJLY3NtcVBfUW5UZDViQWxXNTZDM1lEelFCN1N6WEhMOFlJT0w4eUHSAcwBQVVfeXFMT2VQS0pJRGF2QXNleFF1elRtWXh4UnZ5X3ptMFVhMlVTVVNOc0JaOVRhLXRzNEs2U0xjMm9BTVJKd3dkZ1FJNk1pZURwLVhNbmxWMXptakpyUnN1U0wyN2QzUTJSaURsYldJWFhORXZ3a2pvSHFvaWRYVmhDQ2xNSnpjUlpyQk81LVlmVTJTRlBXT1BvWGtadGROamxqYXVaa3M3aUFRbVBETjNlUEZyNDBBQ281STFqeW04NXFvaVU3dEFyZ1ZuVkJZUUFP?oc=5",
+      "source_name": "Google News",
+      "published_date": "Fri, 05 De",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMixgFBVV95cUxOcElqeUVPN3ZsdFJQTkdScDJMS1pYbEE0LXFOcnN1SGNuS1pvQS04LUhUYkMydkhrcWhmTXpxQ2ZaMHdKZktrXzY4dE85VFFGV3BYSGlWekRVR1pTaUlpMUVzRUs3RkRWWjhNUmRqMzJUeVJMdmEyZXpkZ0Jncnl1cmxVQjdka294RUhrUWdsTjc2SllidUFnZzNrMzNuUFJLY3NtcVBfUW5UZDViQWxXNTZDM1lEelFCN1N6WEhMOFlJT0w4eUHSAcwBQVVfeXFMT2VQS0pJRGF2QXNleFF1elRtWXh4UnZ5X3ptMFVhMlVTVVNOc0JaOVRhLXRzNEs2U0xjMm9BTVJKd3dkZ1FJNk1pZURwLVhNbmxWMXptakpyUnN1U0wyN2QzUTJSaURsYldJWFhORXZ3a2pvSHFvaWRYVmhDQ2xNSnpjUlpyQk",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Reliance Industries can rise 18%, says Morgan Stanley post \u20b910 lakh crore AI investment announcement - CNBC TV18",
+      "url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxPTmI0bFpuZ19aNGtPRko0SVZHYkl3WURUdG5jUkJpRVB4bFViSG5iQzdOWlpJSU10LTU2YUtmVnM0dW5vVU05WW9TeGxYSl9DdDlsbzNBaGFBbGJzRW5VRUxqR05KUTBNTVNhV0pIemcwb1VPODV1cElocmE3cjVic1NOUF8ycEtDY2VMTldTMUp5N0pFOG9OYVoyeVN2X1I0MjNmUF9jZFp1aXJBVG92OXdrcEluekx1a3RXNlRCd2JLLVBWN1ZyZ1F0QnJMWnkwdHA1aU9mc0s1NGRnelhiUFNhVUg3TjI1bzg5Skoyb3BPamtZLUtwckZuONIBgAJBVV95cUxPLVBWcGxkZjRUaUptRDdkNEotZkJfbkdaeWpuRkZzcHZDeTJCMExsdW1HT1dyVGVaTlVOckh4WVhOcFZpeHYyamxkZ0U5dXd6eThFRFZlQWowWkdZOHFXU1lCNkFWYk9wenBIYnVVcnRZT2Z2R1VlT1R5MnJxMURZRldUVUIzaHdmemtiQUdpb1VaNEd0X0VCRXJJS3NSSEN2RTBVRWtUZERERVFLQmlxcTZlM3ZVNElhZ21nUGkzU1J1N2NiUkJDdVdhTmxLemtKVU5tOGgxRGlIeFB0a0d4MldYN3hqMVRoQnI0QVlCVDdGYXVFeWprbE1jSzE5OWVB?oc=5",
+      "source_name": "Google News",
+      "published_date": "Fri, 20 Fe",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi-wFBVV95cUxPTmI0bFpuZ19aNGtPRko0SVZHYkl3WURUdG5jUkJpRVB4bFViSG5iQzdOWlpJSU10LTU2YUtmVnM0dW5vVU05WW9TeGxYSl9DdDlsbzNBaGFBbGJzRW5VRUxqR05KUTBNTVNhV0pIemcwb1VPODV1cElocmE3cjVic1NOUF8ycEtDY2VMTldTMUp5N0pFOG9OYVoyeVN2X1I0MjNmUF9jZFp1aXJBVG92OXdrcEluekx1a3RXNlRCd2JLLVBWN1ZyZ1F0QnJMWnkwdHA1aU9mc0s1NGRnelhiUFNhVUg3TjI1bzg5Skoyb3BPamtZLUtwckZuONIBgAJBVV95cUxPLVBWcGxkZjRUaUptRDdkNEotZkJfbkdaeWpuRkZzcHZDeTJCMExsdW1HT1dyVGVaTlVOckh4WVhOcFZpeHYyamxkZ0U5dXd6eT",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Buy Reliance Industries; target of Rs 1688: Prabhudas Lilladher - Moneycontrol.com",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNYVpNSmx0ZDRYN1R0N3p3RWp5OGF0UGI1ckxzeWpzcGx2MGRLRnlaWkpuRzZNVGctWkxpX3pfRXlWSzBsQnA3c2VKRi1KUEx2YldqSEpuNEN2WXlBZHVHd3RlamFqRDVaWVVPWVlvVmplZXYtZ3ZiQzAyYWNOQ3J1d19uLW9WWjRaQzlGWHJiS0twSFRUa3dxNjlXQTVJRW1UN2pfVjUzby1LMXdsVzhxQWtERmxia2tfTVhVSl81QkU3c0XSAcgBQVVfeXFMT29qOGpRRFN3T1ZXRTRpaWgtNU1CeHRtby1CdmdaYWxqcVdsZ19hZFRPVVJLX3Z0RFpxbVVHb3hHbG1MeVRyQVliSGU1YzdaVnVTekFOVmg4OTYyWnUwVm1sa29uWkJBNlJOUHAyODdQcXdScnJlS1FnS0pXckxCTWZsR2ZORXprQUlvTkJGR2hGeEl0Y00wbjhFZ1dORHhVWXpGRF9CVXNuMllDMjNkWG9DeE5PblJYdEg3X3lxSzd2dm52TG85QXI?oc=5",
+      "source_name": "Google News",
+      "published_date": "Wed, 18 Fe",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMiwwFBVV95cUxNYVpNSmx0ZDRYN1R0N3p3RWp5OGF0UGI1ckxzeWpzcGx2MGRLRnlaWkpuRzZNVGctWkxpX3pfRXlWSzBsQnA3c2VKRi1KUEx2YldqSEpuNEN2WXlBZHVHd3RlamFqRDVaWVVPWVlvVmplZXYtZ3ZiQzAyYWNOQ3J1d19uLW9WWjRaQzlGWHJiS0twSFRUa3dxNjlXQTVJRW1UN2pfVjUzby1LMXdsVzhxQWtERmxia2tfTVhVSl81QkU3c0XSAcgBQVVfeXFMT29qOGpRRFN3T1ZXRTRpaWgtNU1CeHRtby1CdmdaYWxqcVdsZ19hZFRPVVJLX3Z0RFpxbVVHb3hHbG1MeVRyQVliSGU1YzdaVnVTekFOVmg4OTYyWnUwVm1sa29uWkJBNlJOUHAyODdQcXdScnJlS1FnS0pXckxCTWZsR2ZORXprQU",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Moody's affirms Reliance Industries' Baa2 rating; outlook stable - ET EnergyWorld",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxOaGYyVGtqN3lkb3RyTzV2ekNlNTIxZjZPajZQd0x0Z1FpbHJlRXNuZ0ZxaE43eEtvMFdTMVlVRGh0dVVwN0hEMUdIVEdPWWNmX1hrbjRXZDRtWmN3Z3pjdlFkdHFOVHpsZzNybFZUbXJTdXZ0S1U3NmhBRjRKTTVUUzNleFo0U0F1cDlBYnVpNGNqTUcySEl0T1lGa2M3NFpXQkZLMUkyTkRXd3gzSXRNT1ppYXIyeHRRY1pVZjBpSXlwUld6dU1OTXVyaGnSAdIBQVVfeXFMUG5HbTdaZkFZWHNlWVJ2c0ZLVjBVT0FWeVk2SlJIejdfbE0xTTlIU0RaSWpmZldJbXlQYThmWjdYSVNqaU5tbjhXWXJ6R0JoOGRkVzYyb3M4WXdDSTY4ZnFUVnBhcFo4Q0lpYnp6VktVQTZ0ZW9LNDZYc1MzQWdxTkJpZGV2M29RTTBySEE4TzJWS2Rrb3UtVkNyWnU4Y3p0UzV1RUo2UTZ3UWw3RnA2b0dvbGw5YjlSc19zYlZzTkprdHROLWtxMnRXUE1hdEo4ZThR?oc=5",
+      "source_name": "Google News",
+      "published_date": "Sat, 01 No",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMizAFBVV95cUxOaGYyVGtqN3lkb3RyTzV2ekNlNTIxZjZPajZQd0x0Z1FpbHJlRXNuZ0ZxaE43eEtvMFdTMVlVRGh0dVVwN0hEMUdIVEdPWWNmX1hrbjRXZDRtWmN3Z3pjdlFkdHFOVHpsZzNybFZUbXJTdXZ0S1U3NmhBRjRKTTVUUzNleFo0U0F1cDlBYnVpNGNqTUcySEl0T1lGa2M3NFpXQkZLMUkyTkRXd3gzSXRNT1ppYXIyeHRRY1pVZjBpSXlwUld6dU1OTXVyaGnSAdIBQVVfeXFMUG5HbTdaZkFZWHNlWVJ2c0ZLVjBVT0FWeVk2SlJIejdfbE0xTTlIU0RaSWpmZldJbXlQYThmWjdYSVNqaU5tbjhXWXJ6R0JoOGRkVzYyb3M4WXdDSTY4ZnFUVnBhcFo4Q0lpYnp6VktVQTZ0ZW9LNDZYc1MzQWdxTk",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "S&P raises Reliance Industries\u2019 rating to \u2018A-\u2019 as consumer businesses boost earnings - Business Today",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQblVDaEhaWG5GZzdMOEVPVGJCZm12Z0pZMXAzMnc2RWlTTlpsUVlEaF9pLVpPMldJSU1VWDJNQ3ZNQ0taZmhpV2pTT29XcmVIT1d6ZnJfcThLRE1qdUtDb0d0NlBQc0VBR05DSDlWTktDeF9PekMtQXNGRkMtNEx4ZUVpcGRXUGxQUjRpelV5d2hNUnY4MTV2ajlSdi04dWdGNmdGbFhnU3BzeThMajdxMGhCR2NQV2FuNHlfamUyb09ZZVVWSk5fa2Fya0piS3NrRDU1Tl9xaEpRcWVtbkFyUFpSSdIB6AFBVV95cUxQVWp6Um1EMkdBU0pjMUdqNmZYOGlodUJTS1ZoakV2UUIyNmZnXzFWZ1RqT2tqdmNvbzRXZ0xrUlpLVUZOX2pDR1ZmY3hkbUFwa1FnMEJQMGFCV0JwQV9ybkdPcG9PQ1hXMFZhT2xKZ1hIcU96VUprZHljbmRPamJ0VVd4bFh1M2VLUGlCTU5BbnY1SURpOEc2Zl8zN0J4dDV4UUNITzYtTmVWTDdacEhfeVc2aU9fWWFZUDRrc0dkQlhhejQtLTdIY1h1MFZpR0llM0dCYmVRampGN3h3WUpXNnVadFJnVUpt?oc=5",
+      "source_name": "Google News",
+      "published_date": "Thu, 04 De",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi4wFBVV95cUxQblVDaEhaWG5GZzdMOEVPVGJCZm12Z0pZMXAzMnc2RWlTTlpsUVlEaF9pLVpPMldJSU1VWDJNQ3ZNQ0taZmhpV2pTT29XcmVIT1d6ZnJfcThLRE1qdUtDb0d0NlBQc0VBR05DSDlWTktDeF9PekMtQXNGRkMtNEx4ZUVpcGRXUGxQUjRpelV5d2hNUnY4MTV2ajlSdi04dWdGNmdGbFhnU3BzeThMajdxMGhCR2NQV2FuNHlfamUyb09ZZVVWSk5fa2Fya0piS3NrRDU1Tl9xaEpRcWVtbkFyUFpSSdIB6AFBVV95cUxQVWp6Um1EMkdBU0pjMUdqNmZYOGlodUJTS1ZoakV2UUIyNmZnXzFWZ1RqT2tqdmNvbzRXZ0xrUlpLVUZOX2pDR1ZmY3hkbUFwa1FnMEJQMGFCV0JwQV9ybkdPcG9PQ1hXMF",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Investec initiates Reliance Industries stock with Buy rating, INR1,890 target By Investing.com - Investing.com India",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPQkxjSjFUQ3cwSUxHMFZRcFR6dnBYOTdoMEIxMGk5YzN6N0FncUhDU2dOdFBMeW1iM21lTHNnV1lJcUN1LTdZSzJWUGpOb2pPeUMwZjFhRllydFRPQmU0cDhlckhQLUktOWV0dUpfcHlrUnAyZ3p4WUp5NWN3bENaSmNucTVNLUVwWXVTUFhPT1pKcl8xSWx2WlFISGRmV3hfZlVwbWl3UmdxTkR1QW4wVWxKM3hHRmh1TUx3YTBYM09pT1lNWTZkRV9jazdNeDA?oc=5",
+      "source_name": "Google News",
+      "published_date": "Fri, 17 Oc",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMizwFBVV95cUxPQkxjSjFUQ3cwSUxHMFZRcFR6dnBYOTdoMEIxMGk5YzN6N0FncUhDU2dOdFBMeW1iM21lTHNnV1lJcUN1LTdZSzJWUGpOb2pPeUMwZjFhRllydFRPQmU0cDhlckhQLUktOWV0dUpfcHlrUnAyZ3p4WUp5NWN3bENaSmNucTVNLUVwWXVTUFhPT1pKcl8xSWx2WlFISGRmV3hfZlVwbWl3UmdxTkR1QW4wVWxKM3hHRmh1TUx3YTBYM09pT1lNWTZkRV9jazdNeDA?oc=5\" target=\"_blank\">Investec initiates Reliance Industries stock with Buy rating, INR1,890 target By Investing.com</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">Investing.com In",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Potential to upgrade rating of Reliance Industries, says S&P Global Ratings - Business Standard",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOYmZ1Sl9ISW1hM0J4RFMxNlhzUXZDdjc1S0lTTHZIdnpiakU1V3pPZjRQUEJvdEhFMEI1NXlZVEcySGhJdGZDSzdyYVNCZ05NRkxKY1p4bENvLTF2RFBTVkhzRzJoRmtTQXZGTXBJOVRPVFk1M0lIcDZRUEJqQk9TRXlOZVRZUWpaV04tQ1B4ZzFPTWhKRndUWklPUWYzRkZPTkNDeEtGT3dhQVZlblpNbGx1YzBHS09VT1VMenVqNGlwTERhWDBvU3pKTEUybVF6dm1LOEVTWjg4VWvSAeABQVVfeXFMUHMxc0YxR3dRWlZrMTNnMGZBLUVuazdERGlqcWxUSmhpaUIxR2VIRU9MdUQ1ejBpS3kwcFNyelEtZ2N4QnE1Skx3aW8xc3lMcno1STlEdEpEREdPd0czTjROYnZQd2cwRVBRdnVNN09NOElzZzF3YUdGX3VSVExaTEhxMWpHcGF5ejVqblM5MjJKc0RGQjhHQVFhRTMtNkJkSVVxNE1jTmVNVHgyR29acnV5SUtFU1JGWGFxTklhc2ZzczU0NkZrSU1hNGtYNXdiUWdhSTJEZldibE55NzIzRy0?oc=5",
+      "source_name": "Google News",
+      "published_date": "Tue, 19 Au",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi2wFBVV95cUxOYmZ1Sl9ISW1hM0J4RFMxNlhzUXZDdjc1S0lTTHZIdnpiakU1V3pPZjRQUEJvdEhFMEI1NXlZVEcySGhJdGZDSzdyYVNCZ05NRkxKY1p4bENvLTF2RFBTVkhzRzJoRmtTQXZGTXBJOVRPVFk1M0lIcDZRUEJqQk9TRXlOZVRZUWpaV04tQ1B4ZzFPTWhKRndUWklPUWYzRkZPTkNDeEtGT3dhQVZlblpNbGx1YzBHS09VT1VMenVqNGlwTERhWDBvU3pKTEUybVF6dm1LOEVTWjg4VWvSAeABQVVfeXFMUHMxc0YxR3dRWlZrMTNnMGZBLUVuazdERGlqcWxUSmhpaUIxR2VIRU9MdUQ1ejBpS3kwcFNyelEtZ2N4QnE1Skx3aW8xc3lMcno1STlEdEpEREdPd0czTjROYnZQd2cwRVBRdnVNN09NOE",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "UBS Sees Re-Rating Potential in Reliance Industries, Forecasts 24% Upside - outlookbusiness.com",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQakNUV1RTUXRldG42Tko3Vl8tMXNVWU1nVE85Y3NJNHdFSDA3T0puX1JIdG1wakdpU3hIYWdDNlJYMXhLUnZTc2N2ZTYxUE9wSWJ4dTg1eDVGT3NVd2xxQld5dVlSejh1Mmx6U2hJMVZsTHBIZlh3enkzcWVwY1hmX3ZPTEkwbWQxMVVidlRVSFlxUVNpV1RKd2RVU090elA3azNfVVFvWWE3YS1zNVhkZNIBvgFBVV95cUxQY1kyS3ZWRzRLRWczcnR0dFNvcF9GY0hpemZONW91VUFQYjB4Qnd4RG9hOTN3LXZWS0JTRkUtWkhkd0gyUGlDaVB5LW9kbXlpTmpNS0lyV2tCWXM2Y0FtclNfcDQ0MGg5U0NRbFJtNUota3NJRUpwSXpBUU41Z19tMVJJU3dpSjVpcjVvLXBrMUlBQm9Ka2FQZDRXbl9VTzB1bjZOQy1nR2REMnF1cDRmVUs2bXR3Sl9SN1VybkNR?oc=5",
+      "source_name": "Google News",
+      "published_date": "Tue, 26 Au",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMisAFBVV95cUxQakNUV1RTUXRldG42Tko3Vl8tMXNVWU1nVE85Y3NJNHdFSDA3T0puX1JIdG1wakdpU3hIYWdDNlJYMXhLUnZTc2N2ZTYxUE9wSWJ4dTg1eDVGT3NVd2xxQld5dVlSejh1Mmx6U2hJMVZsTHBIZlh3enkzcWVwY1hmX3ZPTEkwbWQxMVVidlRVSFlxUVNpV1RKd2RVU090elA3azNfVVFvWWE3YS1zNVhkZNIBvgFBVV95cUxQY1kyS3ZWRzRLRWczcnR0dFNvcF9GY0hpemZONW91VUFQYjB4Qnd4RG9hOTN3LXZWS0JTRkUtWkhkd0gyUGlDaVB5LW9kbXlpTmpNS0lyV2tCWXM2Y0FtclNfcDQ0MGg5U0NRbFJtNUota3NJRUpwSXpBUU41Z19tMVJJU3dpSjVpcjVvLXBrMUlBQm9Ka2FQZDRXbl",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Reliance Industries Ltd is Rated Hold - Markets Mojo",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOMDBMWGpmMmpDZWdqOERib2ktcEZNNmR0bzFxOVg4Tk5STHVrU3NhQTdVbjA3WC0xRXZ2QThDWURGUXBJVENpV2stX0VnRFRQTS1NUWtMMThsRVlrbTdGcmNxcEFrV2xUWW5FOU5NWWhaSFRzRk8xYUdQTUlKN0NKdUpTeGlJNU9XR0U2ZXpwNlk2MFA5LTNlQ1J4enBtU0Qw?oc=5",
+      "source_name": "Google News",
+      "published_date": "Fri, 20 Fe",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMioAFBVV95cUxOMDBMWGpmMmpDZWdqOERib2ktcEZNNmR0bzFxOVg4Tk5STHVrU3NhQTdVbjA3WC0xRXZ2QThDWURGUXBJVENpV2stX0VnRFRQTS1NUWtMMThsRVlrbTdGcmNxcEFrV2xUWW5FOU5NWWhaSFRzRk8xYUdQTUlKN0NKdUpTeGlJNU9XR0U2ZXpwNlk2MFA5LTNlQ1J4enBtU0Qw?oc=5\" target=\"_blank\">Reliance Industries Ltd is Rated Hold</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">Markets Mojo</font>",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Motilal Oswal Maintains BUY Rating on Reliance Industries with \u20b91,750 Target Price - scanx.trade",
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQRU03MGJsSDBhVkdzUjMwcUJFRW5YOUhrZ2RWQ2R5ZjNWXy1FS1g5ZDZDTE56V3BocTlDMFJkLVpfa0NuQjNXbXNaQ3dxT0tOdHd4NXFpdUFXdEpXYTMzZVduTEN3UFl2b0tieFItVktkRkt5Ukg5amM4Vi1NbllDcTFqSFk4N3AyRFRJN05FQUtlbFdNSDlhTmltX19hclpWZUdXLTRlQnFybmpzUVpMSDdTVk1TX0kzckRLejhycGxrYmlBOGZ2aHNDeFpWaWd5Z0hr?oc=5",
+      "source_name": "Google News",
+      "published_date": "Tue, 20 Ja",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi0wFBVV95cUxQRU03MGJsSDBhVkdzUjMwcUJFRW5YOUhrZ2RWQ2R5ZjNWXy1FS1g5ZDZDTE56V3BocTlDMFJkLVpfa0NuQjNXbXNaQ3dxT0tOdHd4NXFpdUFXdEpXYTMzZVduTEN3UFl2b0tieFItVktkRkt5Ukg5amM4Vi1NbllDcTFqSFk4N3AyRFRJN05FQUtlbFdNSDlhTmltX19hclpWZUdXLTRlQnFybmpzUVpMSDdTVk1TX0kzckRLejhycGxrYmlBOGZ2aHNDeFpWaWd5Z0hr?oc=5\" target=\"_blank\">Motilal Oswal Maintains BUY Rating on Reliance Industries with \u20b91,750 Target Price</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">scanx.trade</font>",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    },
+    {
+      "title": "Reliance Industries shares poised for earnings upgrades, re-rating in every quarter of 2026: Morgan Stanley - CNBC TV18",
+      "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNb05hNDFqN3VxcDRpMFdSbl9tNGhDdVkxX1Y3VGxfSkxxT3ZLeXZSOWxhcGRqWUgybXpES3N3dEVIRTZ1ZjlReG1YTFVEaXB2R1NhS2lJQjdrWlZLeFF3M3NjUjFSN1FjbGNObnFwa1F2S09qOGozOXFYdFJkTGhFYjg5Mk5JTGZhZTh0cHM5azJnMENDOTA4Tm9VMWQzZFJGcFMyanZtMjQtSnZNYXByNjFncWdmZWxveVVLMW15bjB2SEE0SFlEWG5LWVNxUWJfNllZLWFUT2pQV2hBbnhVOEI2Q3bSAeoBQVVfeXFMTTlaN3N6NFFOWkd0MWlpaVdhcGlZVUpLcEJ6Z1FGcmxHVG1QaGdZRDZqZUo2cHVjSTBLZ2w3X0VGZEVwRFZYT1p5ZVc1SmFlNUFscjhYdWVEa0w2dE1IbXlYN2lCZFk0RXJHeUhlbXN4dzgzdGhva3Nial9fbE9wdkdQT2xORVpNeS02UHlYNmxXdEhndzBnNWdROXZkY1RvN0xsZnZMWHFULURab1ZUZUNfZHZXNFJOZGc0TjZJanB0aU1UOHhCbUtqalUwS0xBRUFSWVVyak8zNnB2WDRLOXFZaWNxLUlEZTRn?oc=5",
+      "source_name": "Google News",
+      "published_date": "Wed, 17 De",
+      "raw_text": "<a href=\"https://news.google.com/rss/articles/CBMi5AFBVV95cUxNb05hNDFqN3VxcDRpMFdSbl9tNGhDdVkxX1Y3VGxfSkxxT3ZLeXZSOWxhcGRqWUgybXpES3N3dEVIRTZ1ZjlReG1YTFVEaXB2R1NhS2lJQjdrWlZLeFF3M3NjUjFSN1FjbGNObnFwa1F2S09qOGozOXFYdFJkTGhFYjg5Mk5JTGZhZTh0cHM5azJnMENDOTA4Tm9VMWQzZFJGcFMyanZtMjQtSnZNYXByNjFncWdmZWxveVVLMW15bjB2SEE0SFlEWG5LWVNxUWJfNllZLWFUT2pQV2hBbnhVOEI2Q3bSAeoBQVVfeXFMTTlaN3N6NFFOWkd0MWlpaVdhcGlZVUpLcEJ6Z1FGcmxHVG1QaGdZRDZqZUo2cHVjSTBLZ2w3X0VGZEVwRFZYT1p5ZVc1SmFlNUFscjhYdWVEa0w2dE1IbXlYN2lCZFk0RX",
+      "result_type": "news_article",
+      "risk_tier": null,
+      "risk_score_delta": 0,
+      "matched_keywords": []
+    }
+  ]
+}

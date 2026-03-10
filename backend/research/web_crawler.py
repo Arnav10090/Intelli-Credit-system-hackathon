@@ -196,8 +196,11 @@ async def run_research_agent(
         warnings=warnings,
     )
 
-    # Save to cache
-    _save_to_cache(cin or company_name, result)
+    # Skip cache save for demo companies
+    DEMO_COMPANY_KEYWORDS = ["surya pharmaceuticals", "acme textiles"]
+    if not any(kw in company_name.lower() for kw in DEMO_COMPANY_KEYWORDS):
+        # Save to cache
+        _save_to_cache(cin or company_name, result)
 
     logger.info(
         "Research complete: %d articles | delta=%d | label=%s | cache=%s",

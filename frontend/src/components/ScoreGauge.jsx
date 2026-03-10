@@ -46,7 +46,7 @@ export default function ScoreGauge({ score = 0, grade = '?', label = '', decisio
                 'var(--reject)'
 
     return (
-        <svg viewBox="0 0 192 160" style={{ width: 192, height: 160 }}>
+        <svg viewBox="0 0 192 185" style={{ width: 192, height: 185 }}>
             {/* Background track */}
             <path
                 d={describeArc(bgStart, bgEnd, R)}
@@ -81,20 +81,19 @@ export default function ScoreGauge({ score = 0, grade = '?', label = '', decisio
 
             {/* Score */}
             <text x={cx} y={cy - 12} textAnchor="middle"
-                fill={decisionColor} fontSize={26} fontWeight={700}
+                fill={decisionColor} fontSize={28} fontWeight={700}
                 fontFamily="JetBrains Mono, monospace"
-            >{score}</text>
-            <text x={cx} y={cy + 6} textAnchor="middle"
-                fill="var(--text-muted)" fontSize={9} fontFamily="Outfit, sans-serif"
-                textTransform="uppercase" letterSpacing={1}
-            >/ 100</text>
+            >
+                {score}
+                <tspan fontSize={12} fill="var(--text-dim)" dx={4}>/ 100</tspan>
+            </text>
 
             {/* Grade badge */}
-            <rect x={cx - 20} y={cy + 18} width={40} height={20} rx={4}
+            <rect x={cx - 35} y={cy + 54} width={70} height={24} rx={6}
                 fill={gradeColor} opacity={0.15} />
-            <rect x={cx - 20} y={cy + 18} width={40} height={20} rx={4}
+            <rect x={cx - 35} y={cy + 54} width={70} height={24} rx={6}
                 fill="none" stroke={gradeColor} strokeWidth={1} />
-            <text x={cx} y={cy + 32} textAnchor="middle"
+            <text x={cx} y={cy + 71} textAnchor="middle"
                 fill={gradeColor} fontSize={11} fontWeight={700}
                 fontFamily="JetBrains Mono, monospace"
             >Grade {grade}</text>

@@ -19,7 +19,7 @@ export default function DecisionBanner({ decision, grade, score, trigger, counte
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: trigger ? 8 : 0 }}>
                 <span style={{
                     width: 36, height: 36, borderRadius: '50%',
-                    background: d.color, color: '#fff',
+                    background: d.color, color: 'var(--text-inverse)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 18, fontWeight: 700, flexShrink: 0,
                 }}>{d.icon}</span>

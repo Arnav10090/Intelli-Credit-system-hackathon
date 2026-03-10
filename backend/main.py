@@ -47,7 +47,11 @@ async def lifespan(app: FastAPI):
     """Run startup tasks before the first request, cleanup on shutdown."""
     logger.info("Starting %s v%s", settings.APP_NAME, settings.APP_VERSION)
     await init_db()
-    logger.info("Database initialised at: %s", settings.DATABASE_URL)
+    
+    from demo_reset import reset_demo_cases
+    await reset_demo_cases()
+    
+    logger.info("Database initialised and demo cases reset.")
     yield
     logger.info("Shutting down %s", settings.APP_NAME)
 

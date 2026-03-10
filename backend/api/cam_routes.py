@@ -51,11 +51,15 @@ class CAMStatusResponse(BaseModel):
 
 # ── Generate CAM ──────────────────────────────────────────────────────────────
 
+class CAMRequest(BaseModel):
+    analyst_notes: str | None = ""
+
 @router.post("/cases/{case_id}/cam",
              response_model=CAMGenerateResponse,
              summary="Generate Credit Appraisal Memo (DOCX)")
 async def generate_cam(
     case_id:    str,
+    request:    CAMRequest,
     analyst_id: str = "System",
     session:    AsyncSession = Depends(get_session),
 ):
@@ -115,11 +119,19 @@ async def generate_cam(
     insights_dict = None
     if insights:
         insights_dict = {
-            "notes": insights.notes,
-            "adjustments": insights.adjustments_json,
-            "total_delta": insights.total_delta,
-            "created_at": insights.created_at.isoformat() if insights.created_at else "",
-            "created_by": insights.created_by,
+            "notes": request.analyst_notes if request.analyst_notes else (insights.notes if insights else ""),
+            "adjustments": insights.adjustments_json if insights else [],
+            "total_delta": insights.total_delta if insights else 0,
+            "created_at": insights.created_at.isoformat() if insights and insights.created_at else "",
+            "created_by": insights.created_by if insights else analyst_id,
+        }
+    else:
+        insights_dict = {
+            "notes": request.analyst_notes or "",
+            "adjustments": [],
+            "total_delta": 0,
+            "created_at": "",
+            "created_by": analyst_id,
         }
 
     # ── Build scorecard + loan sizing dicts from stored result ─────────────────
