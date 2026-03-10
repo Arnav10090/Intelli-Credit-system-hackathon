@@ -15,6 +15,7 @@ venv/
 # ─── Node / Frontend ──────────────────────────────────────────────────────────
 node_modules/
 frontend/node_modules/
+frontend/dist/
 
 # ─── Environment & Secrets ────────────────────────────────────────────────────
 .env
@@ -25,9 +26,17 @@ frontend/node_modules/
 *.sqlite
 *.sqlite3
 
-# ─── Generated Files ──────────────────────────────────────────────────────────
+# ─── Generated Outputs (runtime files — regenerated on demand) ────────────────
 backend/outputs/
 backend/uploads/
+sample_outputs/
+*.docx
+*.txt
+
+# ─── Research Runtime Cache (static demo cache in data/ is kept) ──────────────
+backend/research/cache/
+
+# ─── Demo Data (kept in data/ folders, not runtime overrides) ─────────────────
 data/
 
 # ─── OS Files ─────────────────────────────────────────────────────────────────
@@ -43,7 +52,7 @@ Desktop.ini
 *~
 .qodo/
 
-# ─── ML Models (large binaries) ──────────────────────────────────────────────
+# ─── ML Models (large binaries — use git-lfs or regenerate via train_model.py) ─
 ml/models/*.pkl
 ml/models/*.joblib
 
@@ -53,7 +62,7 @@ ml/models/*.joblib
 .coverage
 htmlcov/
 
+# ─── Dev Utility Scripts (not needed by judges) ───────────────────────────────
+generate_sample_cams.ps1
+generate_sample_cams.sh
 pitch_deck_outline.md
-QUICK_START.md
-SUBMISSION_CHECKLIST.md
-
