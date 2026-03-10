@@ -65,4 +65,6 @@ htmlcov/
 # ─── Dev Utility Scripts (not needed by judges) ───────────────────────────────
 generate_sample_cams.ps1
 generate_sample_cams.sh
-pitch_deck_outline.md
+pitch_deck_outline.md\
+
+tests/*.md
