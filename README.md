@@ -11,6 +11,8 @@
 ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚══════╝╚══════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝   ╚═╝   
 ```
 
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,50:16213e,100:0f3460&height=200&section=header&text=⚡%20Intelli-Credit&fontSize=60&fontColor=00d4aa&fontAlignY=38&desc=AI-Powered%20Credit%20Appraisal%20Engine%20for%20Indian%20NBFCs&descColor=a8b2d8&descSize=18&descAlignY=58" width="100%"/>
+
 ### 🏦 AI-Powered Credit Appraisal Engine for Indian NBFC Corporate Lending
 
 **From raw financial documents → banker-grade Credit Appraisal Memo in under 60 seconds**
