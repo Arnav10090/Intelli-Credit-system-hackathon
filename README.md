@@ -1,263 +1,209 @@
-# Intelli-Credit — AI Credit Decisioning Engine
+# Intelli-Credit — AI Credit Appraisal Engine
 
-**AI-powered Credit Appraisal Memo generator for Indian NBFC corporate lending.**
+**End-to-end credit decisioning for Indian NBFC corporate lending — 
+from financial documents to banker-grade CAM in under 60 seconds.**
 
-Intelli-Credit automates the end-to-end credit decisioning workflow by ingesting multi-source financial data (PDFs, GST returns, bank statements), conducting deep research (MCA filings, news, litigation), scoring borrowers using the Five Cs framework, and generating professional Credit Appraisal Memos (CAMs) with LLM-powered narratives.
+Built for Tinkerers' Lab Hackathon by Team AI Apex · March 2026
+
+---
+
+## Live Demo
+
+Two pre-loaded scenarios demonstrate the full pipeline:
+
+| Company | Decision | Score | Key Signal |
+|---|---|---|---|
+| Surya Pharmaceuticals Ltd | ✅ APPROVE | 87/100 · Grade A+ | DSCR 3.09x · Zero pledge · USFDA certified |
+| Acme Textiles Ltd | ❌ REJECT | 50/100 · Grade B | KNOCKOUT: Active NCLT IBC petition |
 
 ---
 
 ## Quick Start
 
 ### Option 1: Docker (Recommended)
-
 ```bash
-git clone <repository-url>
-cd intelli-credit
+git clone https://github.com/Arnav10090/Intelli-credit-system-hackathon
+cd Intelli-credit-system-hackathon
 cp .env.example .env
+# Add your Groq API key to .env (free at console.groq.com)
 docker-compose up --build
 ```
 
-Then open **http://localhost:5173** in your browser.
+Open **http://localhost:5173**
 
 ### Option 2: Manual Setup
-
-**Backend:**
 ```bash
+# Backend
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
-```
 
-**ML Model:**
-```bash
+# ML Model (first time only)
 cd ml
 python generate_data.py
 python train_model.py
-```
 
-**Frontend:**
-```bash
+# Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-Then open **http://localhost:5173** in your browser.
+Open **http://localhost:5173**
 
 ---
 
 ## Architecture
-
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PDF / GST / Bank Data                                              │
-└────────────────┬────────────────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Data Ingestor                                                      │
-│  • PDF Parser (OCR fallback)                                        │
-│  • GST Reconciler (GSTR-2A vs 3B)                                   │
-│  • Bank Statement Analyzer                                          │
-│  • Related Party Detector                                           │
-└────────────────┬────────────────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Feature Engineer                                                   │
-│  • 16 engineered features across Five Cs                            │
-│  • DSCR, DE Ratio, Promoter Equity %, Security Cover                │
-└────────────────┬────────────────────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  Five Cs Scorer (200 points)                                        │
-│  Character 60 | Capacity 60 | Capital 45 | Collateral 30 | Cond 35 │
-└────────────────┬────────────────────────────────────────────────────┘
-                 │
-    ┌────────────┴────────────┐
-    │                         │
-    ▼                         ▼
-┌──────────────┐      ┌──────────────────┐
-│ Research     │      │ ML Validator     │
-│ Agent        │      │ (sklearn HGBC)   │
-│ • MCA        │      │ ROC-AUC: 0.96    │
-│ • News       │      │ Calibrated probs │
-│ • Litigation │      └─────────┬────────┘
-└──────┬───────┘                │
-       │                        │
-       └────────────┬───────────┘
+Financial Documents (Annual Report, GST, Bank Statements)
                     │
                     ▼
-         ┌──────────────────────┐
-         │ Loan Calculator      │
-         │ • Risk-based pricing │
-         │ • Tenor optimization │
-         └──────────┬───────────┘
-                    │
-                    ▼
-         ┌──────────────────────┐
-         │ LLM Narrator (Grok)  │
-         │ • Executive Summary  │
-         │ • Risk Analysis      │
-         │ • Recommendation     │
-         └──────────┬───────────┘
-                    │
-                    ▼
-         ┌──────────────────────┐
-         │ CAM Document (.docx) │
-         └──────────────────────┘
+          ┌─────────────────┐
+          │  Data Ingestor  │
+          │  GST Reconciler │
+          │  RP Detector    │
+          └────────┬────────┘
+                   │
+                   ▼
+       ┌───────────────────────┐
+       │   Feature Engineer    │
+       │   16 features across  │
+       │   Five Cs pillars     │
+       └───────────┬───────────┘
+                   │
+                   ▼
+       ┌───────────────────────┐
+       │  Five Cs Scorer       │
+       │  230 pts → 0-100      │
+       │  Deterministic Python │
+       └─────┬─────────┬───────┘
+             │         │
+             ▼         ▼
+    ┌──────────────┐  ┌──────────────────┐
+    │ Research     │  │ ML Validator     │
+    │ Agent        │  │ sklearn HGBC     │
+    │ News/Legal   │  │ ROC-AUC: 0.96    │
+    │ MCA/eCourts  │  │ Calibrated probs │
+    └──────┬───────┘  └────────┬─────────┘
+           │                   │
+           └─────────┬─────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │  LLM Narrator        │
+          │  llama-3.3-70b via   │
+          │  Groq API            │
+          │  Narrative only —    │
+          │  zero number touch   │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │  CAM Document        │
+          │  10-section .docx    │
+          │  + Audit Trail       │
+          └──────────────────────┘
 ```
 
 ---
 
-## Demo Scenarios
+## Five Cs Scorecard
 
-Intelli-Credit includes two pre-built demo companies to showcase the full decisioning workflow:
+| Pillar | Max | Key Features |
+|---|---|---|
+| Character | 60 | Litigation risk, promoter track record, GST compliance, management quality |
+| Capacity | 60 | DSCR, EBITDA margin trend, revenue CAGR vs sector, plant utilisation |
+| Capital | 45 | D/E ratio, net worth trend, promoter equity % |
+| Collateral | 30 | Security cover, collateral encumbrance |
+| Conditions | 35 | Sector outlook, customer concentration, regulatory environment |
+| **Total** | **230** | **Normalised to 0–100** |
 
-### 1. Acme Textiles Ltd — REJECT Case
+**Decision Logic:**
+- Score ≥ 55 AND no knockout flag → **APPROVE**
+- Score 35–54 OR recoverable knockout → **PARTIAL**
+- Score < 35 OR critical knockout → **REJECT**
 
-**Profile:**
-- Sector: Textiles (export-oriented)
-- Loan Request: ₹50 Cr term loan for capacity expansion
-- Revenue: ₹180 Cr (FY24)
-
-**Red Flags:**
-- DSCR: 0.8x (below 1.25x threshold)
-- Promoter Pledge: 68% of shares pledged
-- NCLT Litigation: Ongoing insolvency case against subsidiary
-- GST Compliance: 2 missed filings in last 12 months
-- Working Capital: Negative cash conversion cycle
-
-**Decision:** REJECT (Five Cs Score: 98/200)
-
-### 2. Surya Pharmaceuticals Ltd — APPROVE Case
-
-**Profile:**
-- Sector: Pharmaceuticals (domestic + export)
-- Loan Request: ₹30 Cr working capital facility
-- Revenue: ₹220 Cr (FY24)
-
-**Strengths:**
-- DSCR: 2.6x (strong debt servicing capacity)
-- Promoter Pledge: 0% (no encumbrance)
-- USFDA Approved: 3 manufacturing facilities
-- GST Compliance: 100% on-time filings
-- Sector Outlook: Positive (PLI scheme beneficiary)
-
-**Decision:** APPROVE (Five Cs Score: 168/200)
+**Knockout Triggers (auto-REJECT regardless of score):**
+- DSCR < 1.0x
+- Active NCLT / IBC petition
+- GST circular trading detected
+- Security cover < 0.8x
 
 ---
 
-## Five Cs Scorecard (200 points)
-
-| Category      | Max Points | Key Metrics                                                    |
-|---------------|------------|----------------------------------------------------------------|
-| **Character** | 60         | Litigation risk, promoter track record, GST compliance         |
-| **Capacity**  | 60         | DSCR, EBITDA margin trend, revenue CAGR vs sector              |
-| **Capital**   | 45         | D/E ratio, net worth trend, promoter equity %                  |
-| **Collateral**| 30         | Security cover, collateral encumbrance                         |
-| **Conditions**| 35         | Sector outlook, customer concentration, regulatory environment |
-
-**Scoring Bands:**
-- 160-200: Low Risk (Approve)
-- 120-159: Medium Risk (Conditional Approve)
-- 80-119: High Risk (Reject with Conditions)
-- 0-79: Very High Risk (Reject)
-
----
-
-## Evaluation Criteria Coverage
-
-| Hackathon Criterion       | Intelli-Credit Feature                                          |
-|---------------------------|-----------------------------------------------------------------|
-| **Extraction Accuracy**   | PDF parser with Tesseract OCR fallback, table extraction        |
-| **Research Depth**        | Research agent with MCA/news/litigation cache, web crawler      |
-| **Explainability**        | Waterfall chart, audit trail, rejection counter-factual         |
-| **Indian Context**        | GSTR-2A vs 3B reconciler, Section 17(5), NCLT detection         |
-| **ML Validation**         | sklearn HistGradientBoostingClassifier (ROC-AUC 0.96)           |
-| **CAM Generation**        | LLM-powered narrative with Grok-3, .docx export                 |
-
----
-
-## Running Tests
-
-Intelli-Credit includes 196+ property-based tests using pytest and Hypothesis:
-
-```bash
-cd tests
-pytest --tb=short
+## Key Design Principle
+```
+All scoring is 100% deterministic Python.
+The LLM only writes narrative prose — it never touches a number.
 ```
 
-**Test Coverage:**
-- Data ingestion (PDF parsing, GST reconciliation, bank statement analysis)
-- Feature engineering (DSCR, D/E ratio, promoter equity %)
-- Five Cs scoring (all 16 features)
-- ML model validation (calibration, feature importance)
-- CAM generation (template rendering, LLM fallback)
+This ensures full auditability and RBI-defensible decisions.
+
+---
+
+## Hackathon Evaluation Coverage
+
+| Criterion | Feature |
+|---|---|
+| Operational Excellence | FastAPI + React + SQLite · Docker one-command deploy |
+| Extraction Accuracy | Pre-structured financial data · GST reconciler · RP detector |
+| Analytical Depth | News crawler · eCourts check · MCA compliance · T1/T2 risk classification |
+| Explainability | Feature contribution waterfall · rejection counter-factual · audit trail |
+| Final Report | 10-section .docx CAM · LLM narrative · downloadable |
+| ML Validation | HistGradientBoosting · ROC-AUC 0.96 · F1 0.83 · Calibrated probabilities |
 
 ---
 
 ## Tech Stack
 
-**Backend:**
-- FastAPI (async Python web framework)
-- SQLite (zero-config database)
-- Tesseract OCR (PDF text extraction)
-- scikit-learn (ML model)
-
-**Frontend:**
-- React 19
-- Vite (build tool)
-- Tailwind CSS
-- Recharts (data visualization)
-
-**ML:**
-- HistGradientBoostingClassifier (sklearn)
-- Platt scaling for probability calibration
-- Permutation feature importance
-
-**LLM:**
-- Grok-3 (xAI) for CAM narrative generation
-- Fallback template if API key not provided
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI · Python 3.11 · SQLite |
+| Frontend | React 19 · Vite · Tailwind CSS · Recharts |
+| ML | scikit-learn HistGradientBoostingClassifier · Platt scaling |
+| LLM | llama-3.3-70b-versatile via Groq API |
+| Document | Node.js · docx library · 10-section Word output |
+| Research | httpx web crawler · Google News RSS · eCourts · MCA21 |
 
 ---
 
-## API Endpoints
+## Environment Setup
 
-**Data Ingestion:**
-- `POST /api/v1/cases` — Create new case
-- `POST /api/v1/cases/{id}/upload` — Upload documents
+Copy `.env.example` to `.env` and set:
+```
+LLM_API_KEY=your_groq_api_key     # Free at console.groq.com
+LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_MODEL=llama-3.3-70b-versatile
+```
 
-**Scoring:**
-- `GET /api/v1/cases/{id}/score` — Get Five Cs score
-- `GET /api/v1/cases/{id}/features` — Get engineered features
-
-**Research:**
-- `POST /api/v1/research/company` — Fetch MCA/news/litigation data
-
-**CAM Generation:**
-- `POST /api/v1/cases/{id}/generate-cam` — Generate CAM document
-- `GET /outputs/{filename}.docx` — Download CAM
+CAM narrative generation requires the Groq key.
+All scoring, ML validation, and research work without it.
 
 ---
 
-## Environment Variables
+## ML Model
 
-See `.env.example` for all configuration options. Key variables:
+Trained on 5,000 synthetic Indian corporate loan cases:
+```bash
+cd ml
+python generate_data.py   # Generate training data
+python train_model.py     # Train and save model
+```
 
-- `LLM_API_KEY` — Grok API key (optional, fallback template used if blank)
-- `DATABASE_URL` — SQLite or PostgreSQL connection string
-- `VITE_API_BASE_URL` — Backend URL for frontend
+Model saved to `ml/models/credit_validator.joblib`
+
+**Performance:** ROC-AUC 0.9627 · AP 0.8939 · F1@0.45: 0.8259
 
 ---
 
-## License
-
-MIT License — see LICENSE file for details.
+## Running Tests
+```bash
+cd backend
+pytest tests/ --tb=short
+```
 
 ---
 
 ## Contributors
 
-Built for National AI/ML Hackathon by Vivriti Capital by Team AI Apex.
+Built at National AI/ML Hackathon by Vivriti Capital Hackathon · March 2026  by Team : Team AI Apex
