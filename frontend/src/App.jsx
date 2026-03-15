@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, NavLink, useNavigate } from 'react-router
 import Dashboard from './pages/Dashboard.jsx'
 import CaseDetail from './pages/CaseDetail.jsx'
 import NewCase from './pages/NewCase.jsx'
+import DocumentIntelligence from './pages/DocumentIntelligence.jsx'
 import Topbar from './components/Topbar.jsx'
 
 class ErrorBoundary extends React.Component {
@@ -57,16 +58,16 @@ function Sidebar({ isOpen, setIsOpen }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
-            background: 'linear-gradient(135deg, var(--primary), var(--blue-bright))',
+            background: 'linear-gradient(135deg, #00F2DC, #00B8A9)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#000', flexShrink: 0,
-            boxShadow: '0 0 16px var(--primary-glow)',
+            boxShadow: '0 0 16px rgba(0, 242, 220, 0.4)',
           }}>
             <IconSparkles />
           </div>
           <div>
-            <h1 className="sidebar-logo-text" style={{ fontSize: 20, letterSpacing: -0.5, color: 'var(--primary)', margin: 0 }}>Intelli-Credit  </h1>
-            <p style={{ color: 'var(--secondary)', fontSize: 11, fontWeight: 700, marginTop: 2, margin: 0 }}>
+            <h1 className="sidebar-logo-text" style={{ fontSize: 20, letterSpacing: -0.5, color: 'var(--text)', fontWeight: 700, margin: 0 }}>Intelli-Credit  </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: 11, fontWeight: 700, marginTop: 2, margin: 0 }}>
               Team: AI APEX
             </p>
           </div>
@@ -108,7 +109,10 @@ function Sidebar({ isOpen, setIsOpen }) {
 
         <div style={{ margin: '16px 0', borderTop: '1px solid var(--border)', width: '100%' }}></div>
 
-        {/* Dummy Links Removed */}
+        <NavLink to="/documents" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <span className="sidebar-icon">📄</span> Document Intelligence
+        </NavLink>
+
         <div style={{ flexGrow: 1 }}></div>
 
         <NavLink to="/new" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} style={{ color: 'var(--primary)', marginTop: '20px', borderTop: '1px solid var(--border)' }}>
@@ -160,6 +164,7 @@ export default function App() {
               <Route path="/demo" element={<CaseDetail demoScenario="acme" />} />
               <Route path="/cases/:id" element={<CaseDetail />} />
               <Route path="/new" element={<NewCase />} />
+              <Route path="/documents" element={<DocumentIntelligence />} />
             </Routes>
           </ErrorBoundary>
         </div>

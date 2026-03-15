@@ -53,7 +53,7 @@ export default function NewCase() {
             }
 
             await new Promise(r => setTimeout(r, 800))
-            
+
             // Determine result based on amount
             const amount = Number(form.amount)
             if (amount > 20) {

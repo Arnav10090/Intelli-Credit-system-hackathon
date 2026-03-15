@@ -11,7 +11,7 @@ sqlalchemy==2.0.30             # ORM (SQLite backend)
 aiosqlite==0.20.0              # Async SQLite driver
 
 # ─── PDF & OCR ────────────────────────────────────────────────────────────────
-PyMuPDF==1.24.3                # fitz — fastest PDF text extraction
+PyMuPDF>=1.23.0                # fitz — fastest PDF text extraction (using pre-built wheels)
 pytesseract==0.3.10            # Tesseract OCR wrapper
 Pillow==10.3.0                 # Image processing for OCR pre-processing
 pdfplumber==0.11.1             # Table extraction from PDFs

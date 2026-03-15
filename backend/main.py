@@ -32,6 +32,7 @@ from api.score_routes import router as score_router
 from api.cam_routes import router as cam_router
 from api.research_routes import router as research_router
 from api.insights_routes import router as insights_router
+from api.document_routes import router as document_router
 
 logging.basicConfig(
     level=logging.DEBUG if settings.DEBUG else logging.INFO,
@@ -93,6 +94,7 @@ app.include_router(score_router,    prefix="/api/v1", tags=["Scoring Engine"])
 app.include_router(cam_router,      prefix="/api/v1", tags=["CAM Generator"])
 app.include_router(research_router, prefix="/api/v1", tags=["Research Agent"])
 app.include_router(insights_router, prefix="/api/v1", tags=["Insights"])
+app.include_router(document_router, prefix="/api/v1", tags=["Document Intelligence"])
 
 
 # ── Health Check ───────────────────────────────────────────────────────────────

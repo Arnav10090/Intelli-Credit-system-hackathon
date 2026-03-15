@@ -419,7 +419,7 @@ export default function CaseDetail({ demo, demoScenario }) {
                                 gap: 10
                             }}>
                                 <span>
-                                    {fromCustom 
+                                    {fromCustom
                                         ? "⚡ Demo environment — showing closest matching scenario. Production version includes PDF extraction via document intelligence pipeline."
                                         : "⚡ Demo Mode — Pre-loaded financial data, GST records, and research cache. Click Run to begin."
                                     }
@@ -702,11 +702,11 @@ export default function CaseDetail({ demo, demoScenario }) {
 
             {/* Tab: Research */}
             {tab === 'Research' && (
-                <ResearchTabContent 
-                    scenario={scenario} 
-                    research={research} 
-                    resSummary={resSummary} 
-                    caseId={caseId} 
+                <ResearchTabContent
+                    scenario={scenario}
+                    research={research}
+                    resSummary={resSummary}
+                    caseId={caseId}
                     handleInsightsSaved={handleInsightsSaved}
                     analystNotes={analystNotes}
                     setAnalystNotes={setAnalystNotes}
@@ -947,9 +947,9 @@ function ResearchTabContent({ scenario, research, resSummary, caseId, handleInsi
             {/* Analyst Notes */}
             {caseId && (
                 <div className="glass-panel" style={{ borderRadius: 'var(--radius)', padding: '16px 18px' }}>
-                    <InsightPanel 
-                        caseId={caseId} 
-                        onInsightsSaved={handleInsightsSaved} 
+                    <InsightPanel
+                        caseId={caseId}
+                        onInsightsSaved={handleInsightsSaved}
                         externalNotes={analystNotes}
                         onNotesChange={setAnalystNotes}
                     />

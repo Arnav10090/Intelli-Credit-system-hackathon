@@ -1,7 +1,17 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import ThemeToggle from './ThemeToggle.jsx'
 
 export default function Topbar() {
+    const [currentTime, setCurrentTime] = useState(new Date())
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date())
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [])
+
     return (
         <div className="topbar" style={{ flexShrink: 0 }}>
             <div style={{ position: 'relative' }}>
@@ -14,7 +24,7 @@ export default function Topbar() {
                     <span style={{ fontSize: 14 }}>📈</span> Portfolio Health: Excellent
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-mono)' }}>
-                    {new Date().toLocaleTimeString()}
+                    {currentTime.toLocaleTimeString()}
                 </div>
                 <div style={{ color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer' }}>🔔</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderLeft: '1px solid var(--border)', paddingLeft: 20 }}>
